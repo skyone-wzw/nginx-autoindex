@@ -1,6 +1,8 @@
 ## Nginx AutoIndex 美化
 
-基于 React & MUI 的 Nginx AutoIndex 美化，用了都说好！
+基于 React & MUI 的 Nginx AutoIndex 美化，完美支持GitHub Markdown语法，用了都说好！
+
+[[demo](https://autoindex.demo.skyone.host)] 小水管，第一次打开速度慢...
 
 `React` + `MUI` + `Remark` + `MathJax`
 
@@ -13,13 +15,16 @@
 3. [x] 按文件名、大小、修改时间排序
 4. [x] 简单自定义
 5. [x] 暗色模式 & 跟随系统模式
-6. [x] README.md
+6. [x] README.md & gfm
 7. [x] 数学公式、代码高亮
 
 计划：
 
 1. [ ] 使用 `react-router`
-2. [ ] 欢迎 issue
+2. [ ] README 支持折叠
+3. [ ] 欢迎 issue
+
+有人用才有动力更新呐~
 
 ~~作者很懒，代码基本怎么直接怎么写，欢迎修改~~
 
@@ -47,6 +52,7 @@
         title: undefined,     // 浏览器标题栏显示的标题，默认与 `name` 相同
         footer: "Powered by Nginx AutoIndex & Skyone Beautify", // 最底部的说明
         readme: true,         // 是否启用 README.md , 需要 3MB
+                              // 异步加载, 不会堵塞主界面, 还有不错的加载动画
         before: true          // README.md 显示在文件列表前面还是后面
     }
 </script>
