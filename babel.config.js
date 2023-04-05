@@ -9,8 +9,7 @@ module.exports = function (api) {
                 {
                     runtime: "automatic"
                 }
-            ],
-            "@babel/preset-typescript"
+            ]
         ],
     };
 };

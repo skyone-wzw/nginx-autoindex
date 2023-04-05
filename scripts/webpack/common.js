@@ -16,9 +16,16 @@ module.exports = {
         rules: [
             {
                 test: /\.(jsx?|tsx?)$/i,
+                exclude: /node_modules/,
                 use: [
                     {
                         loader: "babel-loader",
+                    },
+                    {
+                        loader: "ts-loader",
+                        options: {
+                            configFile: path.resolve(PROJECT_PATH, "tsconfig.json"),
+                        },
                     },
                 ],
             },
