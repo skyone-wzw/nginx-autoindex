@@ -1,32 +1,8 @@
 import {Card, CardHeader, CardMedia, Paper, Skeleton} from "@mui/material";
-import hljs from "highlight.js";
 import {useEffect, useRef, useState} from "react";
-import rehypeMathJaxSvg from "rehype-mathjax";
-import rehypeRaw from "rehype-raw";
-import rehypeStringify from "rehype-stringify";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import {unified} from "unified/lib";
-import {useColorMode} from "./theme";
 import "./markdown.css";
-
-async function markdownParser(markdown: string) {
-    const content = String(
-        await unified()
-            .use(remarkParse)
-            .use(remarkGfm)
-            .use(remarkMath)
-            .use(remarkRehype, {allowDangerousHtml: true})
-            .use(rehypeRaw)
-            .use(rehypeMathJaxSvg)
-            .use(rehypeStringify)
-            .process(markdown),
-    );
-    if (!content) throw new Error();
-    return content;
-}
+import "./github.min.css";
+import {useColorMode} from "./theme";
 
 interface ReadmeProps {
     url: string;
@@ -41,22 +17,37 @@ function Readme({url}: ReadmeProps) {
 
     useEffect(() => {
         (async () => {
+            let render: (markdown: string) => Promise<string>;
+            if (typeof window.siteConfig?.readme === "string") {
+                const server = window.siteConfig.readme;
+                render = markdown =>
+                    fetch(server, {
+                        method: "POST",
+                        mode: "cors",
+                        body: markdown,
+                        headers: {
+                            "Content-Type": "text/plain",
+                        },
+                    }).then(res => res.text());
+            } else {
+                render = (await import("./render")).default;
+            }
             const markdown = await fetch(url).then(res => {
                 if (/text\/html/.test(res.headers.get("Content-Type") || "")) {
-                    return ""
+                    return "";
                 }
-                return res.text()
+                return res.text();
             });
             // 没有 README.md
             if (!markdown) {
-                setLoading(false)
+                setLoading(false);
                 return;
             }
             try {
-                const html = await markdownParser(markdown);
+                const html = await render(markdown);
                 setContent(html);
             } catch (e) {
-                console.log(e)
+                console.log(e);
                 setError(true);
                 return;
             }
@@ -66,9 +57,6 @@ function Readme({url}: ReadmeProps) {
     useEffect(() => {
         if (!loading && ref.current && content) {
             ref.current.innerHTML = content;
-            ref.current.querySelectorAll(`pre code[class^="language-"]`).forEach((el) => {
-                hljs.highlightElement(el as any);
-            });
         }
     }, [content]);
 
@@ -87,12 +75,14 @@ function Readme({url}: ReadmeProps) {
     }
     // 没有 README.md
     if (!content) {
-        return <></>
+        return <></>;
     }
 
     return (
         <Paper sx={{minHeight: 240, mb: 3, p: 4}}>
-            <link rel="stylesheet" href={`/nginx-autoindex/github-${currentColorMode}.min.css`}/>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css"
+                  integrity="sha384-Xi8rHCmBmhbuyyhbI88391ZKP2dmfnOl4rT9ZfRI7mLTdk1wblIUnrIq35nqwEvC"
+                  crossOrigin="anonymous"/>
             <div className={`markdown-body markdown-${currentColorMode}`} ref={ref}/>
         </Paper>
     );

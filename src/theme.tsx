@@ -41,6 +41,11 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         localStorage.setItem("theme.palette.mode", mode);
     };
     const currentColorMode = colorMode === "system" ? systemColorMode : colorMode
+    useEffect(() => {
+        if (document.documentElement.style.colorScheme !== currentColorMode) {
+            document.documentElement.style.colorScheme = currentColorMode
+        }
+    }, [currentColorMode])
     const theme = createTheme({
         zIndex: {
             drawer: 1200,

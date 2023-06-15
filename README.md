@@ -51,8 +51,11 @@
         name: "文件分享",      // 标题，默认为 `文件分享`
         title: undefined,     // 浏览器标题栏显示的标题，默认与 `name` 相同
         footer: "Powered by Nginx AutoIndex & Skyone Beautify", // 最底部的说明
-        readme: true,         // 是否启用 README.md , 需要 3MB
-                              // 异步加载, 不会堵塞主界面, 还有不错的加载动画
+        readme: true,         // 是否启用 README.md , 需要 766KB , gzip 压缩后约 220KB
+                              // 异步加载, 不会堵塞主界面, 还有不错地加载动画
+                              // 还可以选择配置用于渲染 markdown 的服务器的 URL
+                              // 例如: "https://example.com/markdown/render"
+                              // 个人感觉没必要, 220KB 已经足够小了
         before: true          // README.md 显示在文件列表前面还是后面
     }
 </script>
