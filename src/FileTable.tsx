@@ -213,8 +213,6 @@ function FileTable({files}: FileTableProps) {
     const [wideMode, setWideMode] = useState(false);
     const isWide = useMediaQuery(`(min-width: ${minWide + 50}px)`);
 
-    console.log(isWide)
-
     const comparator = comparators[orderBy];
 
     return (

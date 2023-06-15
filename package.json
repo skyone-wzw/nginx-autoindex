@@ -1,7 +1,7 @@
 {
   "name": "nginx-autoindex",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --config scripts/webpack/build.js",
     "start": "cross-env NODE_ENV=development webpack-dev-server --config scripts/webpack/dev.js"
@@ -14,11 +14,11 @@
     "@mui/material": "^5.11.14",
     "@mui/utils": "^5.11.13",
     "github-markdown-css": "^5.2.0",
-    "highlight.js": "^11.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.6",
-    "rehype-mathjax": "^4.0.2",
+    "rehype-highlight": "^6.0.0",
+    "rehype-katex": "^6.0.3",
     "rehype-raw": "^6.1.1",
     "rehype-stringify": "^9.0.3",
     "remark-gfm": "^3.0.1",

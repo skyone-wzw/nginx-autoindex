@@ -11,7 +11,7 @@ declare global {
             name?: string,
             title?: string,
             footer?: string,
-            readme?: boolean,
+            readme?: boolean | string,
             before?: boolean,
         };
     }
