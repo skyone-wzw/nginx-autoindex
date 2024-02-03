@@ -116,13 +116,20 @@
     background: none;
 }
 
-#root {
-    display: flex;
+@supports (display: grid) and (grid-template-rows: 1fr) {
+    #root {
+        display: grid;
+        min-height: 100vh;
+        grid-template-rows: 1fr auto;
+    }
 }
 
-.aplayer {
+iframe {
     width: 100%;
     border: none;
     margin-bottom: 20px;
-    height: 100px;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    color-scheme: dark;
 }

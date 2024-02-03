@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import {unified} from "unified/lib";
+import {unified} from "unified";
 
 async function render(markdown: string) {
     const content = String(

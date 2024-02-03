@@ -46,7 +46,7 @@ function NginxAutoIndex({files}: NginxAutoIndexProps) {
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <Container component="main" sx={{mt: 2}}>
+            <Container component="main" sx={{mt: 2, gridRowStart: 1}}>
                 <Toolbar/>
                 {window.siteConfig?.readme && window.siteConfig.before && readme && (
                     <Suspense fallback={<Skeleton variant="rounded" height={160} sx={{mb: 3}} animation="wave"/>}>
@@ -61,16 +61,16 @@ function NginxAutoIndex({files}: NginxAutoIndexProps) {
                         <Readme url={readme.href!}/>
                     </Suspense>
                 )}
-                {window.siteConfig?.footer && (
-                    <Paper component="footer" sx={{mt: -3, p: 4, position: "relative", bottom: -24}}>
-                        <Typography textAlign="center"
-                                    variant="body1"
-                                    component="p">
-                            {window.siteConfig?.footer}
-                        </Typography>
-                    </Paper>
-                )}
             </Container>
+            {window.siteConfig?.footer && (
+                <Paper component="footer" sx={{gridRowStart: 2, py: 4}}>
+                    <Typography textAlign="center"
+                                variant="body1"
+                                component="p">
+                        {window.siteConfig?.footer}
+                    </Typography>
+                </Paper>
+            )}
         </>
     );
 }
