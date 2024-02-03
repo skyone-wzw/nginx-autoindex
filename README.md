@@ -59,8 +59,7 @@
         before: true          // README.md 显示在文件列表前面还是后面
     }
 </script>
-<script src="/nginx-autoindex/app.js"></script>
-<link href="/nginx-autoindex/app.css" rel="stylesheet">
+<!--  其余部分  -->
 ```
 
 编辑 Nginx 配置文件，模板如下：
@@ -69,17 +68,18 @@
 server {
     listen 80;                    # 监听的端口
     server_name www.skyone.host;  # 你的域名
+    charset utf-8;
 
     location = /autoindex.html {
-        root   /path/to/file;     # 记得改
+        root   /path/to/file;     # 改为 nginx-autoindex.zip 解压后文件的目录
     }
 
     location ~ ^/nginx-autoindex/ {
-        root   /path/to/file;     # 记得改
+        root   /path/to/file;     # 改为 nginx-autoindex.zip 解压后文件的目录
     }
 
     location / {
-        root /var/www;            # 你文件的位置
+        root /var/www;            # 要分享的文件的位置
         autoindex on;
         add_after_body /autoindex.html;
     }
