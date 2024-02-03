@@ -29,6 +29,10 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.(woff2?|ttf)/,
+                type: "asset/resource",
+            },
         ],
     },
     plugins: [
@@ -37,7 +41,10 @@ module.exports = {
             color: "#52c41a",
         }),
         new HtmlWebpackPlugin({
-            template: path.resolve(PROJECT_PATH, "./public/index.html"),
+            template: path.resolve(PROJECT_PATH, "./public/index.ejs"),
+            inject: false,
+            minify: false,
+            filename: "autoindex.html",
             publicPath: "/",
         }),
     ],

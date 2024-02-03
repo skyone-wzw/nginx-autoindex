@@ -1,0 +1,18 @@
+<script>
+    window.siteConfig = {
+        name: "Skyone 文件分享",
+        footer: "Powered by Nginx AutoIndex & Skyone Beautify",
+        readme: true,
+        before: true
+    }
+</script>
+<script>
+    (function (){
+        var color = localStorage.getItem("theme.palette.mode");
+        if (color === "dark" || color === "light") {
+            document.documentElement.style.colorScheme = color;
+        }
+    })()
+</script><% for (const script of htmlWebpackPlugin.files.js ) { %>
+<script defer="defer" src="<%= script %>"></script><% } %><% for (const style of htmlWebpackPlugin.files.css ) { %>
+<link href="<%= style %>" rel="stylesheet"><% } %>

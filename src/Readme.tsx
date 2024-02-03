@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import "./markdown.css";
 import "./github.min.css";
 import {useColorMode} from "./theme";
+import "katex/dist/katex.css";
 
 interface ReadmeProps {
     url: string;
@@ -80,9 +81,6 @@ function Readme({url}: ReadmeProps) {
 
     return (
         <Paper sx={{minHeight: 240, mb: 3, p: 4}}>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css"
-                  integrity="sha384-Xi8rHCmBmhbuyyhbI88391ZKP2dmfnOl4rT9ZfRI7mLTdk1wblIUnrIq35nqwEvC"
-                  crossOrigin="anonymous"/>
             <div className={`markdown-body markdown-${currentColorMode}`} ref={ref}/>
         </Paper>
     );

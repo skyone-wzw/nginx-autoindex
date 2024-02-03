@@ -12,8 +12,9 @@ module.exports = merge(common, {
     mode: "production",
     devtool: false,
     output: {
-        filename: "nginx-autoindex/[name].js",
+        filename: "nginx-autoindex/[name].[contenthash:8].js",
         path: path.resolve(PROJECT_PATH, "./build"),
+        assetModuleFilename: "nginx-autoindex/fonts/[hash][ext]"
     },
     optimization: {
         minimize: true,
@@ -34,7 +35,7 @@ module.exports = merge(common, {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: "nginx-autoindex/[name].css",
+            filename: "nginx-autoindex/[name].[contenthash:8].css",
         }),
         new CleanWebpackPlugin(),
         new CopyWebpackPlugin({
@@ -43,7 +44,7 @@ module.exports = merge(common, {
                     from: path.resolve(PROJECT_PATH, "public"),
                     to: path.resolve(PROJECT_PATH, "build"),
                     filter: (filepath) =>
-                        path.resolve(filepath) !== path.resolve(PROJECT_PATH, "public/index.html"),
+                        path.resolve(filepath).startsWith(path.resolve(PROJECT_PATH, "public/nginx-autoindex")),
                 },
             ],
         }),

@@ -9,7 +9,8 @@ module.exports = merge(common, {
     devtool: "cheap-module-source-map",
     output: {
         filename: "nginx-autoindex/[name].js",
-        path: path.resolve(PROJECT_PATH, "./dist"),
+        path: path.resolve(PROJECT_PATH, "./build"),
+        assetModuleFilename: "nginx-autoindex/fonts/[name][ext]"
     },
     module: {
         rules: [
