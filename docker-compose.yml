@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  autoindex:
+    image: "ghcr.io/skyone-wzw/nginx-autoindex:latest" # not available yet
+    restart: unless-stopped
+    volumes:
+      - "./data:/var/www/html"
+    ports:
+      - "80:80"

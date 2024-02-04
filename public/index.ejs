@@ -12,7 +12,13 @@
         if (color === "dark" || color === "light") {
             document.documentElement.style.colorScheme = color;
         }
+        var styles = <%= JSON.stringify(htmlWebpackPlugin.files.css) %>
+        for (var i in styles) {
+            var style = document.createElement("link");
+            style.rel = "stylesheet";
+            style.href = styles[i];
+            document.head.appendChild(style);
+        }
     })()
 </script><% for (const script of htmlWebpackPlugin.files.js ) { %>
-<script defer="defer" src="<%= script %>"></script><% } %><% for (const style of htmlWebpackPlugin.files.css ) { %>
-<link href="<%= style %>" rel="stylesheet"><% } %>
+<script defer="defer" src="<%= script %>"></script><% } %>
