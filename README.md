@@ -86,6 +86,17 @@ server {
 }
 ```
 
+## Docker 部署
+
+下载 `docker-compose.yml` 到本地，直接运行即可。
+
+```shell
+wget https://raw.githubusercontent.com/skyone-wzw/nginx-autoindex/master/docker-compose.yml
+docker-compose up -d
+```
+
+将要分享的内容挂载到 `/var/www/html` 即可，默认为同目录下的 `data` 文件夹。
+
 ## 更多截图
 
 ![preview.webp](/screenshot/markdown.webp)
