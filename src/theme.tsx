@@ -58,7 +58,18 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         if (document.documentElement.style.colorScheme !== currentColorMode) {
             document.documentElement.style.colorScheme = currentColorMode;
         }
-    }, [currentColorMode]);
+        if (colorMode === "system") {
+            document.documentElement.classList.remove("dark", "light");
+        }
+        if (colorMode === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.classList.remove("light");
+        }
+        if (colorMode === "light") {
+            document.documentElement.classList.add("light");
+            document.documentElement.classList.remove("dark");
+        }
+    }, [currentColorMode, colorMode]);
     const theme = createTheme({
         zIndex: {
             drawer: 1200,

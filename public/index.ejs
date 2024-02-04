@@ -11,6 +11,7 @@
         var color = localStorage.getItem("theme.palette.mode");
         if (color === "dark" || color === "light") {
             document.documentElement.style.colorScheme = color;
+            document.documentElement.classList.add(color);
         }
         var styles = <%= JSON.stringify(htmlWebpackPlugin.files.css) %>
         for (var i in styles) {
