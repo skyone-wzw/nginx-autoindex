@@ -2,7 +2,7 @@ version: "3"
 
 services:
   autoindex:
-    image: "ghcr.io/skyone-wzw/nginx-autoindex:latest" # not available yet
+    image: "ghcr.io/skyone-wzw/nginx-autoindex:v1.2.0"
     restart: unless-stopped
     volumes:
       - "./data:/var/www/html"

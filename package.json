@@ -1,7 +1,7 @@
 {
   "name": "nginx-autoindex",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --config scripts/webpack/build.js",
     "start": "cross-env NODE_ENV=development webpack-dev-server --config scripts/webpack/dev.js"

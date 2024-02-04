@@ -2,9 +2,9 @@
 
 基于 React & MUI 的 Nginx AutoIndex 美化，完美支持GitHub Markdown语法，用了都说好！
 
-[[demo](https://autoindex.demo.skyone.host)] 小水管，第一次打开速度慢...
+[[demo](https://nginx-autoindex-demo.skyone.host)] 小水管，第一次打开速度慢...
 
-`React` + `MUI` + `Remark` + `MathJax`
+`React` + `MUI` + `Remark` + `KaTeX`
 
 ![预览](/screenshot/preview.webp)
 
