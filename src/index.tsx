@@ -33,7 +33,7 @@ document.body.appendChild(root);
 ReactDOM.createRoot(root).render(
     <ErrorBoundary>
         <ThemeProvider>
-            <NginxAutoIndex files={metadata.files}/>
+            <NginxAutoIndex metadata={metadata}/>
         </ThemeProvider>
     </ErrorBoundary>,
 );

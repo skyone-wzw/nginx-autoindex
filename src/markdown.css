@@ -826,6 +826,11 @@
     border-radius: 6px;
 }
 
+.markdown-body pre {
+    margin-right: -8px;
+    margin-left: -8px;
+}
+
 .markdown-body pre code,
 .markdown-body pre tt {
     display: inline;

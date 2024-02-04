@@ -45,15 +45,13 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         localStorage.setItem("theme.palette.mode", mode);
     };
     const toggleColorMode = () => {
-        _setColorMode(prev => {
-            if (prev === "light") {
-                return "dark";
-            } else if (prev === "dark") {
-                return "system";
-            } else {
-                return "light";
-            }
-        });
+        if (colorMode === "light") {
+            setColorMode("dark");
+        } else if (colorMode === "dark") {
+            setColorMode("system");
+        } else {
+            setColorMode("light");
+        }
     };
     const currentColorMode = colorMode === "system" ? systemColorMode : colorMode;
     useEffect(() => {

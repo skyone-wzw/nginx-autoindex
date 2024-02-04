@@ -202,12 +202,13 @@ const comparators: { [T in OrderBy]: (order: Order) => (a: NginxFile, b: NginxFi
 };
 
 interface FileTableProps {
-    files: Array<NginxFile>;
+    handleNewPage: (url: string) => void;
+    files: NginxFile[];
 }
 
-const minWide = 620
+const minWide = 620;
 
-function FileTable({files}: FileTableProps) {
+function FileTable({handleNewPage, files}: FileTableProps) {
     const [order, setOrder] = useState<Order>("asc");
     const [orderBy, setOrderBy] = useState<OrderBy>("filename");
     const [wideMode, setWideMode] = useState(false);
@@ -237,13 +238,13 @@ function FileTable({files}: FileTableProps) {
                 />
                 <TableBody>
                     {location.pathname !== "/" && (
-                        <TableRow hover key="/index" sx={{cursor: "pointer"}} onClick={() => {
-                            location.href = "../";
-                        }}>
+                        <TableRow hover key="/index" sx={{cursor: "pointer"}}
+                                  onClick={() => handleNewPage("../")}>
                             <TableCell align="right" padding="checkbox"/>
                             <TableCell align="left">
                                 {/* @ts-ignore */}
                                 <Typography href="../" sx={{color: "unset", textDecoration: "none"}}
+                                            onClick={(e) => e.preventDefault()}
                                             variant="body1" component="a">返回上一级</Typography>
                             </TableCell>
                             <TableCell
@@ -253,18 +254,23 @@ function FileTable({files}: FileTableProps) {
                     )}
                     {stableSort(files, comparator(order)).map(file => {
                         const filesize = file.size;
+                        const isDir = file.name.endsWith("/");
                         return (
-                            <TableRow hover key={file.name} sx={{cursor: "pointer"}} onClick={() => {
-                                if (typeof file.href === "string") {
-                                    location.href = file.href;
-                                }
-                            }}>
+                            <TableRow hover key={file.name} sx={{cursor: "pointer"}}
+                                      onClick={() => {
+                                          if (isDir) {
+                                              handleNewPage(file.href);
+                                          } else {
+                                              window.location.href = file.href;
+                                          }
+                                      }}>
                                 <TableCell align="right" padding="checkbox">
                                     {getFileIcon(file.name)}
                                 </TableCell>
                                 <TableCell align="left">
                                     {/* @ts-ignore */}
                                     <Typography href={file.href} sx={{color: "unset", textDecoration: "none"}}
+                                                onClick={e => isDir && e.preventDefault()}
                                                 variant="body1" component="a">{file.name}</Typography>
                                 </TableCell>
                                 <TableCell

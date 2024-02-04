@@ -18,6 +18,7 @@ function Readme({url}: ReadmeProps) {
 
     useEffect(() => {
         (async () => {
+            setLoading(true);
             let render: (markdown: string) => Promise<string>;
             if (typeof window.siteConfig?.readme === "string") {
                 const server = window.siteConfig.readme;
@@ -51,6 +52,8 @@ function Readme({url}: ReadmeProps) {
                 console.log(e);
                 setError(true);
                 return;
+            } finally {
+                setLoading(false)
             }
         })();
     }, [url]);
@@ -72,7 +75,7 @@ function Readme({url}: ReadmeProps) {
     }
     // 加载中
     if (loading) {
-        return <Skeleton variant="rounded" sx={{mb: 3}} height={160} animation="wave"/>;
+        return <Skeleton variant="rounded" sx={{mb: 3}} height={320} animation="wave"/>;
     }
     // 没有 README.md
     if (!content) {
