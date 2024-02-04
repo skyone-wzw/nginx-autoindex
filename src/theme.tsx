@@ -1,3 +1,6 @@
+import SystemModeIcon from "@mui/icons-material/BrightnessAuto";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import {createTheme, CssBaseline, ThemeProvider as MuiThemeProvider} from "@mui/material";
 import {createContext, PropsWithChildren, useContext, useEffect, useState} from "react";
 
@@ -9,7 +12,8 @@ const defaultMode = local === "light" || local === "dark" ? local : "system";
 const defaultSystem = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
 type ColorModeContextType = {
-    currentColorMode: "light" | "dark";
+    currentColorMode: SystemColorMode;
+    toggleColorMode: () => void;
     colorMode: ColorMode;
     setColorMode: (mode: ColorMode) => void;
 }
@@ -40,12 +44,23 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         _setColorMode(mode);
         localStorage.setItem("theme.palette.mode", mode);
     };
-    const currentColorMode = colorMode === "system" ? systemColorMode : colorMode
+    const toggleColorMode = () => {
+        _setColorMode(prev => {
+            if (prev === "light") {
+                return "dark";
+            } else if (prev === "dark") {
+                return "system";
+            } else {
+                return "light";
+            }
+        });
+    };
+    const currentColorMode = colorMode === "system" ? systemColorMode : colorMode;
     useEffect(() => {
         if (document.documentElement.style.colorScheme !== currentColorMode) {
-            document.documentElement.style.colorScheme = currentColorMode
+            document.documentElement.style.colorScheme = currentColorMode;
         }
-    }, [currentColorMode])
+    }, [currentColorMode]);
     const theme = createTheme({
         zIndex: {
             drawer: 1200,
@@ -57,17 +72,30 @@ export function ThemeProvider({children}: ThemeProviderProps) {
                 main: "#673ab7",
             },
             secondary: {
-                main: "#f50057",
+                main: "#ec4899",
             },
         },
     });
 
     return (
-        <ColorModeContext.Provider value={{colorMode, currentColorMode, setColorMode}}>
+        <ColorModeContext.Provider value={{colorMode, currentColorMode, setColorMode, toggleColorMode}}>
             <MuiThemeProvider theme={theme}>
                 <CssBaseline/>
                 {children}
             </MuiThemeProvider>
         </ColorModeContext.Provider>
     );
+}
+
+export function useColorModeIcon() {
+    const {colorMode} = useColorMode();
+
+    switch (colorMode) {
+        case "light":
+            return <LightModeIcon/>;
+        case "dark":
+            return <DarkModeIcon/>;
+        default:
+            return <SystemModeIcon/>;
+    }
 }

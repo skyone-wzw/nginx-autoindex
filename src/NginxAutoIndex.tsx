@@ -1,32 +1,20 @@
-import BrightnessAutoIcon from "@mui/icons-material/BrightnessAuto";
 import CloudCircleIcon from "@mui/icons-material/CloudCircle";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
 import {AppBar, Button, Container, IconButton, Paper, Skeleton, Toolbar, Typography} from "@mui/material";
 import {lazy, Suspense} from "react";
+import {NginxFile} from "./file-parser";
 import FileTable from "./FileTable";
-import {NginxFile} from "./index";
-import {useColorMode} from "./theme";
+import {useColorMode, useColorModeIcon} from "./theme";
 
 const Readme = lazy(() => import("./Readme"))
 
 interface NginxAutoIndexProps {
-    files: Array<NginxFile>;
+    files: NginxFile[];
 }
 
 function NginxAutoIndex({files}: NginxAutoIndexProps) {
-    const {colorMode, setColorMode} = useColorMode();
-    const colorModeIcon = colorMode === "light" ? <LightModeIcon/> :
-        colorMode === "dark" ? <DarkModeIcon/> : <BrightnessAutoIcon/>;
-    const colorModeToggle = () => {
-        if (colorMode === "light") {
-            setColorMode("dark");
-        } else if (colorMode === "dark") {
-            setColorMode("system");
-        } else {
-            setColorMode("light");
-        }
-    };
+    const {toggleColorMode} = useColorMode();
+    const colorModeIcon = useColorModeIcon();
+
     const readme = files.find(file => /\/readme\.md$/i.test(file.href || ""))
 
     return (
@@ -41,12 +29,12 @@ function NginxAutoIndex({files}: NginxAutoIndexProps) {
                             </Typography>
                         </Button>
                     </div>
-                    <IconButton color="inherit" sx={{mr: 2}} onClick={colorModeToggle}>
+                    <IconButton color="inherit" sx={{mr: 2}} onClick={toggleColorMode}>
                         {colorModeIcon}
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <Container component="main" sx={{mt: 2, gridRowStart: 1}}>
+            <Container component="main" sx={{mt: 2, flexGrow: 1}}>
                 <Toolbar/>
                 {window.siteConfig?.readme && window.siteConfig.before && readme && (
                     <Suspense fallback={<Skeleton variant="rounded" height={160} sx={{mb: 3}} animation="wave"/>}>
@@ -63,7 +51,7 @@ function NginxAutoIndex({files}: NginxAutoIndexProps) {
                 )}
             </Container>
             {window.siteConfig?.footer && (
-                <Paper component="footer" sx={{gridRowStart: 2, py: 4}}>
+                <Paper component="footer" sx={{py: 4}}>
                     <Typography textAlign="center"
                                 variant="body1"
                                 component="p">

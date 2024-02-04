@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import {visuallyHidden} from "@mui/utils";
 import {useState} from "react";
-import {NginxFile} from "./index";
+import {NginxFile} from "./file-parser";
 
 function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
     const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
@@ -158,8 +158,8 @@ function filenameComparator(a: NginxFile, b: NginxFile, order: Order) {
 }
 
 function filesizeComparator(a: NginxFile, b: NginxFile, order: Order) {
-    const as = parseInt(a.size);
-    const bs = parseInt(b.size);
+    const as = a.size;
+    const bs = b.size;
     if (!isNumber(as) && !isNumber(bs)) {
         return a.name > b.name ? 1 : -1;
     }
@@ -169,7 +169,7 @@ function filesizeComparator(a: NginxFile, b: NginxFile, order: Order) {
     if (!isNumber(bs)) {
         return 1;
     }
-    const res = as === bs ? a.name > b.name ? 1 : -1 : as - bs;
+    const res = as === bs ? a.name > b.name ? 1 : -1 : as! - bs!;
     return order === "asc" ? res : -res;
 }
 
@@ -252,7 +252,7 @@ function FileTable({files}: FileTableProps) {
                         </TableRow>
                     )}
                     {stableSort(files, comparator(order)).map(file => {
-                        const filesize = parseInt(file.size);
+                        const filesize = file.size;
                         return (
                             <TableRow hover key={file.name} sx={{cursor: "pointer"}} onClick={() => {
                                 if (typeof file.href === "string") {
@@ -268,7 +268,7 @@ function FileTable({files}: FileTableProps) {
                                                 variant="body1" component="a">{file.name}</Typography>
                                 </TableCell>
                                 <TableCell
-                                    align="right">{isNumber(filesize) && humanFileSize(filesize) || "-"}</TableCell>
+                                    align="right">{isNumber(filesize) && humanFileSize(filesize!) || "-"}</TableCell>
                                 <TableCell
                                     align="right">{file.date?.toLocaleDateString().replace(/\b(\d)\b/g, "0$1")}</TableCell>
                             </TableRow>
