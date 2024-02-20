@@ -95,7 +95,15 @@ wget https://raw.githubusercontent.com/skyone-wzw/nginx-autoindex/master/docker-
 docker-compose up -d
 ```
 
-将要分享的内容挂载到 `/var/www/html` 即可，默认为同目录下的 `data` 文件夹。
+将要分享的内容挂载到 `/var/www/html` ，默认为同目录下的 `data` 文件夹。
+
+可以直接使用环境变量进行配置，以下环境变量与 `window.siteConfig` 相对应
+
+- `SITECONFIG_NAME`
+- `SITECONFIG_TITLE`
+- `SITECONFIG_FOOTER`
+- `SITECONFIG_README`
+- `SITECONFIG_BEFORE`
 
 ## 更多截图
 
