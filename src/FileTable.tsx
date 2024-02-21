@@ -21,6 +21,7 @@ import {
 import {visuallyHidden} from "@mui/utils";
 import {useState} from "react";
 import {NginxFile} from "./file-parser";
+import FloatingConfigButton from "./FloatingConfigButton";
 
 function humanFileSize(bytes: number, si = false, dp = 1) {
     const thresh = si ? 1000 : 1024;
@@ -59,7 +60,7 @@ type Order = "asc" | "desc";
 type OrderBy = "filename" | "changetime" | "filesize"
 type OrderGroupBy = "none" | "type" | "ext"
 
-interface OrderConfig {
+export interface OrderConfig {
     order: Order;
     orderBy: OrderBy;
     groupBy: OrderGroupBy;
@@ -234,12 +235,21 @@ function getLocalOrderConfig(): OrderConfig {
                 result.groupBy = config.groupBy;
             }
         }
-    } catch (e) {}
+    } catch (e) {
+    }
     return result;
 }
 
 function setLocalOrderConfig(config: OrderConfig) {
-    localStorage.setItem("orderConfig", JSON.stringify(config));
+    localStorage.setItem("settings.orderConfig", JSON.stringify(config));
+}
+
+function getLocalWideMode(): boolean {
+    return localStorage.getItem("settings.wideMode") !== "false";
+}
+
+function setLocalWideMode(wideMode: boolean) {
+    localStorage.setItem("settings.wideMode", wideMode.toString());
 }
 
 interface FileTableProps {
@@ -251,74 +261,76 @@ const minWide = 620;
 
 function FileTable({handleNewPage, files}: FileTableProps) {
     const [orderConfig, _setOrderConfig] = useState<OrderConfig>(getLocalOrderConfig());
-    const [wideMode, setWideMode] = useState(false);
-    const isWide = useMediaQuery(`(min-width: ${minWide + 50}px)`);
+    const [wideMode, _setWideMode] = useState(getLocalWideMode());
 
     const setOrderConfig = (config: OrderConfig) => {
         _setOrderConfig(config);
         setLocalOrderConfig(config);
     };
+    const setWideMode = (wideMode: boolean) => {
+        _setWideMode(wideMode);
+        setLocalWideMode(wideMode);
+    };
 
     return (
-        <TableContainer>
-            {!isWide && (
-                <Toolbar>
-                    <Typography sx={{flexGrow: 1}}></Typography>
-                    <FormControlLabel
-                        control={<Switch checked={wideMode} onChange={e => setWideMode(e.target.checked)}/>}
-                        label="宽模式"
-                    />
-                </Toolbar>
-            )}
-            <Table sx={wideMode ? {minWidth: minWide} : {}}>
-                <EnhancedTableHead orderConfig={orderConfig} setOrderConfig={setOrderConfig}/>
-                <TableBody>
-                    {location.pathname !== "/" && (
-                        <TableRow hover key="/index" sx={{cursor: "pointer"}}
-                                  onClick={() => handleNewPage("../")}>
-                            <TableCell align="right" padding="checkbox"/>
-                            <TableCell align="left">
-                                {/* @ts-ignore */}
-                                <Typography href="../" sx={{color: "unset", textDecoration: "none"}}
-                                            onClick={(e) => e.preventDefault()}
-                                            variant="body1" component="a">返回上一级</Typography>
-                            </TableCell>
-                            <TableCell
-                                align="right"/>
-                            <TableCell/>
-                        </TableRow>
-                    )}
-                    {sort(files, orderConfig).map(file => {
-                        const filesize = file.size;
-                        const isDir = file.name.endsWith("/");
-                        return (
-                            <TableRow hover key={file.name} sx={{cursor: "pointer"}}
-                                      onClick={() => {
-                                          if (isDir) {
-                                              handleNewPage(file.href);
-                                          } else {
-                                              window.location.href = file.href;
-                                          }
-                                      }}>
-                                <TableCell align="right" padding="checkbox">
-                                    {getFileIcon(file.name)}
-                                </TableCell>
+        <>
+            <TableContainer>
+                <Table sx={wideMode ? {minWidth: minWide} : {}}>
+                    <EnhancedTableHead orderConfig={orderConfig} setOrderConfig={setOrderConfig}/>
+                    <TableBody>
+                        {location.pathname !== "/" && (
+                            <TableRow hover key="/index" sx={{cursor: "pointer"}}
+                                      onClick={() => handleNewPage("../")}>
+                                <TableCell align="right" padding="checkbox"/>
                                 <TableCell align="left">
                                     {/* @ts-ignore */}
-                                    <Typography href={file.href} sx={{color: "unset", textDecoration: "none"}}
-                                                onClick={e => isDir && e.preventDefault()}
-                                                variant="body1" component="a">{file.name}</Typography>
+                                    <Typography href="../" sx={{color: "unset", textDecoration: "none"}}
+                                                onClick={(e) => e.preventDefault()}
+                                                variant="body1" component="a">返回上一级</Typography>
                                 </TableCell>
                                 <TableCell
-                                    align="right">{filesize !== null && humanFileSize(filesize!) || "-"}</TableCell>
-                                <TableCell
-                                    align="right">{file.date?.toLocaleDateString().replace(/\b(\d)\b/g, "0$1")}</TableCell>
+                                    align="right"/>
+                                <TableCell/>
                             </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                        )}
+                        {sort(files, orderConfig).map(file => {
+                            const filesize = file.size;
+                            const isDir = file.name.endsWith("/");
+                            return (
+                                <TableRow hover key={file.name} sx={{cursor: "pointer"}}
+                                          onClick={() => {
+                                              if (isDir) {
+                                                  handleNewPage(file.href);
+                                              } else {
+                                                  window.location.href = file.href;
+                                              }
+                                          }}>
+                                    <TableCell align="right" padding="checkbox">
+                                        {getFileIcon(file.name)}
+                                    </TableCell>
+                                    <TableCell align="left">
+                                        {/* @ts-ignore */}
+                                        <Typography href={file.href} sx={{color: "unset", textDecoration: "none"}}
+                                                    onClick={e => isDir && e.preventDefault()}
+                                                    variant="body1" component="a">{file.name}</Typography>
+                                    </TableCell>
+                                    <TableCell
+                                        align="right">{filesize !== null && humanFileSize(filesize!) || "-"}</TableCell>
+                                    <TableCell
+                                        align="right">{file.date?.toLocaleDateString().replace(/\b(\d)\b/g, "0$1")}</TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <FloatingConfigButton
+                settings={{wideMode, orderConfig}}
+                setSettings={settings => {
+                    setWideMode(settings.wideMode);
+                    setOrderConfig(settings.orderConfig)
+                }}/>
+        </>
     );
 }
 
