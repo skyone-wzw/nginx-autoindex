@@ -1,7 +1,7 @@
 import FolderIcon from "@mui/icons-material/Folder";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import PhotoIcon from "@mui/icons-material/Photo";
+import MusicFileIcon from "@mui/icons-material/MusicNote";
+import ImageFileIcon from "@mui/icons-material/Photo";
 import VideoFileIcon from "@mui/icons-material/VideoFile";
 import {
     Box,
@@ -22,22 +22,6 @@ import {visuallyHidden} from "@mui/utils";
 import {useState} from "react";
 import {NginxFile} from "./file-parser";
 
-function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
-    const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) {
-            return order;
-        }
-        return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-}
-
-function isNumber(obj: any) {
-    return typeof obj === "number" && !isNaN(obj);
-}
-
 function humanFileSize(bytes: number, si = false, dp = 1) {
     const thresh = si ? 1000 : 1024;
     if (Math.abs(bytes) < thresh) {
@@ -55,19 +39,15 @@ function humanFileSize(bytes: number, si = false, dp = 1) {
     return bytes.toFixed(dp) + " " + units[u];
 }
 
-function isDir(filename: string) {
-    return filename.endsWith("/");
-}
-
 function getFileIcon(filename: string) {
     if (filename.endsWith("/")) {
         return <FolderIcon/>;
     }
     if (/\.(png|jpe?g|gif|webp|bmp)$/.test(filename)) {
-        return <PhotoIcon/>;
+        return <ImageFileIcon/>;
     }
     if (/\.(mp3|ape|flac|ogg|wav|wma|aac)$/.test(filename)) {
-        return <MusicNoteIcon/>;
+        return <MusicFileIcon/>;
     }
     if (/\.(mp4|flv|m4v|mkv|avi|webm|rmvb)$/.test(filename)) {
         return <VideoFileIcon/>;
@@ -77,21 +57,37 @@ function getFileIcon(filename: string) {
 
 type Order = "asc" | "desc";
 type OrderBy = "filename" | "changetime" | "filesize"
+type OrderGroupBy = "none" | "type" | "ext"
 
-interface EnhancedTableProps {
-    onRequestSort: (order: Order, orderBy: OrderBy) => void;
+interface OrderConfig {
     order: Order;
     orderBy: OrderBy;
+    groupBy: OrderGroupBy;
 }
 
-function EnhancedTableHead({order, orderBy, onRequestSort}: EnhancedTableProps) {
-    const changeOrder = (to: OrderBy) => {
-        if (orderBy === to) {
-            onRequestSort(order === "asc" ? "desc" : "asc", to);
+const DefaultOrderConfig: OrderConfig = {
+    order: "asc",
+    orderBy: "filename",
+    groupBy: "type",
+};
+
+interface EnhancedTableProps {
+    orderConfig: OrderConfig;
+    setOrderConfig: (config: OrderConfig) => void;
+}
+
+function EnhancedTableHead({orderConfig, setOrderConfig}: EnhancedTableProps) {
+    const {order, orderBy, groupBy} = orderConfig;
+
+    const changeOrder = (newOrderBy: OrderBy) => {
+        if (newOrderBy === orderBy) {
+            const newOrder = order === "asc" ? "desc" : "asc";
+            setOrderConfig({order: newOrder, orderBy: newOrderBy, groupBy});
         } else {
-            onRequestSort("asc", to);
+            setOrderConfig({order: "asc", orderBy: newOrderBy, groupBy});
         }
     };
+
     return (
         <TableHead>
             <TableRow>
@@ -144,62 +140,107 @@ function EnhancedTableHead({order, orderBy, onRequestSort}: EnhancedTableProps) 
 }
 
 function filenameComparator(a: NginxFile, b: NginxFile, order: Order) {
-    if (isDir(a.name) && isDir(b.name)) {
+    if (order === "asc") {
         return a.name > b.name ? 1 : -1;
+    } else {
+        return a.name > b.name ? -1 : 1;
     }
-    if (isDir(a.name)) {
-        return -1;
-    }
-    if (isDir(b.name)) {
-        return 1;
-    }
-    const res = a.name > b.name ? 1 : -1;
-    return order === "asc" ? res : -res;
 }
 
 function filesizeComparator(a: NginxFile, b: NginxFile, order: Order) {
-    const as = a.size;
-    const bs = b.size;
-    if (!isNumber(as) && !isNumber(bs)) {
-        return a.name > b.name ? 1 : -1;
+    // 文件夹以 0 处理
+    const sizeA = a.size ?? 0;
+    const sizeB = b.size ?? 0;
+    if (sizeA === sizeB) {
+        // 两者大小相等，按文件名排序
+        return filenameComparator(a, b, order);
     }
-    if (!isNumber(as)) {
-        return -1;
+    if (order === "asc") {
+        return sizeA - sizeB;
+    } else {
+        return sizeB - sizeA;
     }
-    if (!isNumber(bs)) {
-        return 1;
-    }
-    const res = as === bs ? a.name > b.name ? 1 : -1 : as! - bs!;
-    return order === "asc" ? res : -res;
 }
 
 function changetimeComparator(a: NginxFile, b: NginxFile, order: Order) {
-    function base(a: NginxFile, b: NginxFile) {
-        if (!a.date && !b.date) {
-            return a.name > b.name ? 1 : -1;
-        }
-        if (!a.date) {
-            return -1;
-        }
-        if (!b.date) {
-            return 1;
-        }
-        if (a.date.getTime() === b.date.getTime()) {
-            return a.name > b.name ? 1 : -1;
-        }
-        return b.date.getTime() - a.date.getTime();
+    // 文件夹以 0 处理
+    const timeA = a.date?.getTime() ?? 0;
+    const timeB = b.date?.getTime() ?? 0;
+    if (timeA === timeB) {
+        // 两者时间相等，按文件名排序
+        return filenameComparator(a, b, order);
     }
-
-    return order === "asc" ? base(a, b) : base(b, a);
+    if (order === "asc") {
+        return timeA - timeB;
+    } else {
+        return timeB - timeA;
+    }
 }
 
-const makeComparator = (fn: (a: NginxFile, b: NginxFile, order: Order) => number) => (order: Order) => (a: NginxFile, b: NginxFile) => -fn(b, a, order);
+const makeComparator = (fn: (a: NginxFile, b: NginxFile, order: Order) => number) => (order: Order) => (a: NginxFile, b: NginxFile) => fn(a, b, order);
 
 const comparators: { [T in OrderBy]: (order: Order) => (a: NginxFile, b: NginxFile) => number } = {
     filename: makeComparator(filenameComparator),
     filesize: makeComparator(filesizeComparator),
     changetime: makeComparator(changetimeComparator),
 };
+
+function sort(data: NginxFile[], config: OrderConfig): NginxFile[] {
+    const {order, orderBy, groupBy} = config;
+
+    if (groupBy === "none") {
+        // 不分组
+        return [...data].sort(comparators[orderBy](order));
+    } else if (groupBy === "ext") {
+        // 按文件扩展名分组
+        const result = [];
+        const dirs = data.filter(f => f.name.endsWith("/"));
+        const files = data.filter(f => !f.name.endsWith("/"));
+        result.push(...dirs.sort(comparators[orderBy](order)));
+        const extMap = new Map<string, NginxFile[]>();
+        for (const f of files) {
+            const ext = f.name.split(".").pop() ?? "";
+            if (!extMap.has(ext)) {
+                extMap.set(ext, []);
+            }
+            extMap.get(ext)!.push(f);
+        }
+        Array.from(extMap.keys()).sort().forEach(ext => {
+            result.push(...extMap.get(ext)!.sort(comparators[orderBy](order)));
+        });
+        return result;
+    } else {
+        // 文件夹在前
+        const result = [];
+        result.push(...data.filter(f => f.name.endsWith("/")).sort(comparators[orderBy](order)));
+        result.push(...data.filter(f => !f.name.endsWith("/")).sort(comparators[orderBy](order)));
+        return result;
+    }
+}
+
+function getLocalOrderConfig(): OrderConfig {
+    const result = DefaultOrderConfig;
+    try {
+        const data = localStorage.getItem("orderConfig");
+        if (data) {
+            const config = JSON.parse(data);
+            if (config.order === "asc" || config.order === "desc") {
+                result.order = config.order;
+            }
+            if (config.orderBy === "filename" || config.orderBy === "filesize" || config.orderBy === "changetime") {
+                result.orderBy = config.orderBy;
+            }
+            if (config.groupBy === "none" || config.groupBy === "type" || config.groupBy === "ext") {
+                result.groupBy = config.groupBy;
+            }
+        }
+    } catch (e) {}
+    return result;
+}
+
+function setLocalOrderConfig(config: OrderConfig) {
+    localStorage.setItem("orderConfig", JSON.stringify(config));
+}
 
 interface FileTableProps {
     handleNewPage: (url: string) => void;
@@ -209,12 +250,14 @@ interface FileTableProps {
 const minWide = 620;
 
 function FileTable({handleNewPage, files}: FileTableProps) {
-    const [order, setOrder] = useState<Order>("asc");
-    const [orderBy, setOrderBy] = useState<OrderBy>("filename");
+    const [orderConfig, _setOrderConfig] = useState<OrderConfig>(getLocalOrderConfig());
     const [wideMode, setWideMode] = useState(false);
     const isWide = useMediaQuery(`(min-width: ${minWide + 50}px)`);
 
-    const comparator = comparators[orderBy];
+    const setOrderConfig = (config: OrderConfig) => {
+        _setOrderConfig(config);
+        setLocalOrderConfig(config);
+    };
 
     return (
         <TableContainer>
@@ -228,14 +271,7 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                 </Toolbar>
             )}
             <Table sx={wideMode ? {minWidth: minWide} : {}}>
-                <EnhancedTableHead
-                    order={order}
-                    orderBy={orderBy}
-                    onRequestSort={(o, ob) => {
-                        if (order !== o) setOrder(o);
-                        if (orderBy !== ob) setOrderBy(ob);
-                    }}
-                />
+                <EnhancedTableHead orderConfig={orderConfig} setOrderConfig={setOrderConfig}/>
                 <TableBody>
                     {location.pathname !== "/" && (
                         <TableRow hover key="/index" sx={{cursor: "pointer"}}
@@ -252,7 +288,7 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                             <TableCell/>
                         </TableRow>
                     )}
-                    {stableSort(files, comparator(order)).map(file => {
+                    {sort(files, orderConfig).map(file => {
                         const filesize = file.size;
                         const isDir = file.name.endsWith("/");
                         return (
@@ -274,7 +310,7 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                                                 variant="body1" component="a">{file.name}</Typography>
                                 </TableCell>
                                 <TableCell
-                                    align="right">{isNumber(filesize) && humanFileSize(filesize!) || "-"}</TableCell>
+                                    align="right">{filesize !== null && humanFileSize(filesize!) || "-"}</TableCell>
                                 <TableCell
                                     align="right">{file.date?.toLocaleDateString().replace(/\b(\d)\b/g, "0$1")}</TableCell>
                             </TableRow>
