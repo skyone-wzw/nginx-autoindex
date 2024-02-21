@@ -5,23 +5,11 @@
         readme: true,
         before: true
     }
-</script>
-<script>
     // @@DOCKER_CONFIG_START@@
     // @@DOCKER_CONFIG_END@@
-    (function (){
-        var color = localStorage.getItem("theme.palette.mode");
-        if (color === "dark" || color === "light") {
-            document.documentElement.style.colorScheme = color;
-            document.documentElement.classList.add(color);
-        }
-        var styles = <%= JSON.stringify(htmlWebpackPlugin.files.css) %>
-        for (var i in styles) {
-            var style = document.createElement("link");
-            style.rel = "stylesheet";
-            style.href = styles[i];
-            document.head.appendChild(style);
-        }
-    })()
-</script><% for (const script of htmlWebpackPlugin.files.js ) { %>
-<script defer="defer" src="<%= script %>"></script><% } %>
+    window.assets = {
+        css: <%= JSON.stringify(htmlWebpackPlugin.files.css) %>,
+        js: <%= JSON.stringify(htmlWebpackPlugin.files.js.filter(script => !script.match(/\/bootstrap\.(.*?)\.js$/))) %>
+    }
+</script>
+<script defer="defer" src="<%= htmlWebpackPlugin.files.js.find(script => script.match(/\/bootstrap\.(.*?)\.js$/)) %>"></script>

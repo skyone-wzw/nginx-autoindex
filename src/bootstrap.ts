@@ -1,3 +1,7 @@
+window.siteConfig ??= {} as any;
+window.siteConfig.name ??= "文件分享";
+window.siteConfig.title ??= window.siteConfig.name;
+
 if (process.env.NODE_ENV === "development") {
     // Development mode
     document.body.innerHTML = "<div id='root'></div>";
@@ -20,13 +24,6 @@ if (process.env.NODE_ENV === "development") {
 }
 
 function bootstrap() {
-    if (!window.siteConfig) {
-        window.siteConfig = {} as any;
-    }
-    window.siteConfig.name ??= "文件分享";
-    window.siteConfig.title ??= window.siteConfig.name;
-    document.title = window.siteConfig.title;
-
     const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>

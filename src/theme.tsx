@@ -1,8 +1,17 @@
 import SystemModeIcon from "@mui/icons-material/BrightnessAuto";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import {createTheme, CssBaseline, ThemeProvider as MuiThemeProvider} from "@mui/material";
-import {createContext, PropsWithChildren, useContext, useEffect, useState} from "react";
+import {createTheme, CssBaseline, LinkProps, ThemeProvider as MuiThemeProvider} from "@mui/material";
+import {createContext, forwardRef, PropsWithChildren, useContext, useEffect, useState} from "react";
+import {Link as RouterLink, LinkProps as RouterLinkProps} from "react-router-dom";
+
+export const LinkBehavior = forwardRef<
+    HTMLAnchorElement,
+    Omit<RouterLinkProps, 'to'> & { href: RouterLinkProps['to'] }
+>((props, ref) => {
+    const { href, ...other } = props;
+    return <RouterLink ref={ref} to={href} {...other} />;
+});
 
 export type ColorMode = "light" | "dark" | "system";
 export type SystemColorMode = "light" | "dark"
@@ -71,10 +80,6 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         }
     }, [currentColorMode, colorMode]);
     const theme = createTheme({
-        zIndex: {
-            drawer: 1200,
-            appBar: 1201,
-        },
         palette: {
             mode: currentColorMode,
             primary: {
@@ -82,6 +87,18 @@ export function ThemeProvider({children}: ThemeProviderProps) {
             },
             secondary: {
                 main: "#ec4899",
+            },
+        },
+        components: {
+            MuiLink: {
+                defaultProps: {
+                    component: LinkBehavior,
+                } as LinkProps,
+            },
+            MuiButtonBase: {
+                defaultProps: {
+                    LinkComponent: LinkBehavior,
+                },
             },
         },
     });

@@ -5,8 +5,7 @@ import ImageFileIcon from "@mui/icons-material/Photo";
 import VideoFileIcon from "@mui/icons-material/VideoFile";
 import {
     Box,
-    FormControlLabel,
-    Switch,
+    Link,
     Table,
     TableBody,
     TableCell,
@@ -14,12 +13,10 @@ import {
     TableHead,
     TableRow,
     TableSortLabel,
-    Toolbar,
-    Typography,
-    useMediaQuery,
 } from "@mui/material";
 import {visuallyHidden} from "@mui/utils";
 import {useState} from "react";
+import {useLocation, useNavigate} from "react-router";
 import {NginxFile} from "./file-parser";
 import FloatingConfigButton from "./FloatingConfigButton";
 
@@ -253,13 +250,14 @@ function setLocalWideMode(wideMode: boolean) {
 }
 
 interface FileTableProps {
-    handleNewPage: (url: string) => void;
     files: NginxFile[];
 }
 
 const minWide = 620;
 
-function FileTable({handleNewPage, files}: FileTableProps) {
+function FileTable({files}: FileTableProps) {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [orderConfig, _setOrderConfig] = useState<OrderConfig>(getLocalOrderConfig());
     const [wideMode, _setWideMode] = useState(getLocalWideMode());
 
@@ -280,13 +278,12 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                     <TableBody>
                         {location.pathname !== "/" && (
                             <TableRow hover key="/index" sx={{cursor: "pointer"}}
-                                      onClick={() => handleNewPage("../")}>
+                                      onClick={() => navigate(`${location.pathname}../`)}>
                                 <TableCell align="right" padding="checkbox"/>
                                 <TableCell align="left">
-                                    {/* @ts-ignore */}
-                                    <Typography href="../" sx={{color: "unset", textDecoration: "none"}}
-                                                onClick={(e) => e.preventDefault()}
-                                                variant="body1" component="a">返回上一级</Typography>
+                                    <Link href={`${location.pathname}../`} sx={{color: "unset", textDecoration: "none"}}
+                                          onClick={e => e.stopPropagation()}
+                                          variant="body1">返回上一级</Link>
                                 </TableCell>
                                 <TableCell
                                     align="right"/>
@@ -300,7 +297,7 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                                 <TableRow hover key={file.name} sx={{cursor: "pointer"}}
                                           onClick={() => {
                                               if (isDir) {
-                                                  handleNewPage(file.href);
+                                                  navigate(file.href);
                                               } else {
                                                   window.location.href = file.href;
                                               }
@@ -309,10 +306,9 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                                         {getFileIcon(file.name)}
                                     </TableCell>
                                     <TableCell align="left">
-                                        {/* @ts-ignore */}
-                                        <Typography href={file.href} sx={{color: "unset", textDecoration: "none"}}
-                                                    onClick={e => isDir && e.preventDefault()}
-                                                    variant="body1" component="a">{file.name}</Typography>
+                                        <Link href={file.href} sx={{color: "unset", textDecoration: "none"}}
+                                              onClick={e => e.stopPropagation()}
+                                              variant="body1">{file.name}</Link>
                                     </TableCell>
                                     <TableCell
                                         align="right">{filesize !== null && humanFileSize(filesize!) || "-"}</TableCell>
@@ -328,7 +324,7 @@ function FileTable({handleNewPage, files}: FileTableProps) {
                 settings={{wideMode, orderConfig}}
                 setSettings={settings => {
                     setWideMode(settings.wideMode);
-                    setOrderConfig(settings.orderConfig)
+                    setOrderConfig(settings.orderConfig);
                 }}/>
         </>
     );

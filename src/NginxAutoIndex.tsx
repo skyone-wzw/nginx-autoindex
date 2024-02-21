@@ -1,7 +1,8 @@
 import CloudCircleIcon from "@mui/icons-material/CloudCircle";
 import {AppBar, Button, Container, IconButton, Paper, Skeleton, Toolbar, Typography} from "@mui/material";
 import {lazy, Suspense, useEffect, useState} from "react";
-import fileParser, {NginxPageMetadata} from "./file-parser";
+import {useLocation} from "react-router";
+import fileParser, {NginxFile} from "./file-parser";
 import FileTable from "./FileTable";
 import {useColorMode, useColorModeIcon} from "./theme";
 
@@ -10,7 +11,7 @@ const Readme = lazy(() => import("./Readme"));
 async function fetchNewPage(url: string) {
     try {
         const res = await fetch(url);
-        if (!res.ok) return null;
+        if (!res.ok || !res.headers.get("Content-Type")?.match(/text\/html/i)) return null;
         const html = await res.text();
         const parser = new DOMParser();
         return parser.parseFromString(html, "text/html");
@@ -19,36 +20,28 @@ async function fetchNewPage(url: string) {
     }
 }
 
-interface NginxAutoIndexProps {
-    metadata: NginxPageMetadata;
-}
-
-function NginxAutoIndex({metadata}: NginxAutoIndexProps) {
-    const [path, setPath] = useState(metadata.path);
-    const [files, setFiles] = useState(metadata.files);
+function NginxAutoIndex() {
+    const location = useLocation();
+    const [files, setFiles] = useState<NginxFile[]>([]);
     const {toggleColorMode} = useColorMode();
     const colorModeIcon = useColorModeIcon();
 
     const readme = files.find(file => /\/readme\.md$/i.test(file.href || ""));
 
     useEffect(() => {
-        const prefix = path === "" ? "" : `${path} - `;
-        document.title = `${prefix}${window.siteConfig!.title!}`;
-    }, [path]);
-
-    const handleNewPage = async (url: string) => {
-        const newPage = await fetchNewPage(url);
-        if (!newPage) {
-            // 如果获取失败，直接跳转
-            window.location.href = url;
-            return;
-        }
-        history.pushState(null, "", url);
-        window.scroll({top: 0, behavior: "smooth"});
-        const newMetadata = fileParser(newPage.documentElement as HTMLHtmlElement);
-        setPath(newMetadata.path);
-        setFiles(newMetadata.files);
-    };
+        (async () => {
+            const newPage = await fetchNewPage(location.pathname);
+            if (!newPage) {
+                // 如果获取失败，直接跳转
+                window.location.href = location.pathname;
+                return;
+            }
+            const newFiles = fileParser(location.pathname, newPage.documentElement as HTMLHtmlElement);
+            setFiles(newFiles);
+            const prefix = location.pathname === "" ? "" : `${location.pathname} - `;
+            document.title = `${prefix}${window.siteConfig!.title}`;
+        })()
+    }, [location.pathname]);
 
     const readmeElement = window.siteConfig!.readme! && readme && (
         <Suspense fallback={<Skeleton variant="rounded" height={320} sx={{mb: 3}} animation="wave"/>}>
@@ -63,8 +56,7 @@ function NginxAutoIndex({metadata}: NginxAutoIndexProps) {
                     <CloudCircleIcon sx={{mr: 2}}/>
                     <div style={{flexGrow: 1}}>
                         <Button color="inherit" href="/">
-                            <Typography component="h1" sx={{flexGrow: 1, userSelect: "none"}}
-                                        onClick={() => handleNewPage("/")}>
+                            <Typography component="h1" sx={{flexGrow: 1, userSelect: "none"}}>
                                 {window.siteConfig!.name!}
                             </Typography>
                         </Button>
@@ -78,7 +70,7 @@ function NginxAutoIndex({metadata}: NginxAutoIndexProps) {
                 <Toolbar/>
                 {window.siteConfig!.before && readmeElement}
                 <Paper sx={{mb: 3}}>
-                    <FileTable files={files} handleNewPage={handleNewPage}/>
+                    <FileTable files={files}/>
                 </Paper>
                 {!window.siteConfig!.before && readmeElement}
             </Container>
