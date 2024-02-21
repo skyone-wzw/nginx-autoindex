@@ -10,7 +10,7 @@ module.exports = merge(common, {
     output: {
         filename: "nginx-autoindex/[name].js",
         path: path.resolve(PROJECT_PATH, "./build"),
-        assetModuleFilename: "nginx-autoindex/fonts/[name][ext]"
+        assetModuleFilename: "nginx-autoindex/fonts/[name][ext]",
     },
     module: {
         rules: [
