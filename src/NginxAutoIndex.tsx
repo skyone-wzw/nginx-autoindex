@@ -1,6 +1,7 @@
 import CloudCircleIcon from "@mui/icons-material/CloudCircle";
 import {AppBar, Button, Container, IconButton, Paper, Skeleton, Toolbar, Typography} from "@mui/material";
-import {lazy, Suspense, useEffect, useState} from "react";
+import {lazy, MouseEventHandler, Suspense, useEffect, useState} from "react";
+import {flushSync} from "react-dom";
 import {useLocation, useNavigate} from "react-router";
 import fileParser, {NginxFile} from "./file-parser";
 import FileTable from "./FileTable";
@@ -46,8 +47,36 @@ function NginxAutoIndex() {
             setFiles(newFiles);
             const prefix = location.pathname === "" ? "" : `${location.pathname} - `;
             document.title = `${prefix}${window.siteConfig!.title}`;
-        })()
+        })();
     }, [location.pathname]);
+
+    const handleToggleColorMode: MouseEventHandler = async (e) => {
+        if (!document.startViewTransition) {
+            toggleColorMode();
+            return;
+        }
+        const x = e.clientX;
+        const y = e.clientY;
+        const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+        const vt = document.startViewTransition(() => {
+            flushSync(() => {
+                toggleColorMode();
+            });
+        });
+        await vt.ready;
+        const frameConfig = {
+            clipPath: [
+                `circle(0 at ${x}px ${y}px)`,
+                `circle(${radius}px at ${x}px ${y}px)`,
+            ],
+        };
+        const timingConfig = {
+            duration: 400,
+            pseudoElement: "::view-transition-new(root)",
+        };
+        document.documentElement.animate(frameConfig, timingConfig);
+    };
 
     const readmeElement = window.siteConfig!.readme! && readme && (
         <Suspense fallback={<Skeleton variant="rounded" height={320} sx={{mb: 3}} animation="wave"/>}>
@@ -67,7 +96,7 @@ function NginxAutoIndex() {
                             </Typography>
                         </Button>
                     </div>
-                    <IconButton color="inherit" sx={{mr: 2}} onClick={toggleColorMode}>
+                    <IconButton color="inherit" sx={{mr: 2}} onClick={handleToggleColorMode}>
                         {colorModeIcon}
                     </IconButton>
                 </Toolbar>
