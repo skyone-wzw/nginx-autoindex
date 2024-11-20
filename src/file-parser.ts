@@ -5,6 +5,9 @@ export interface NginxFile {
     size: number | null;
 }
 
+type SizeUnit = "K" | "M" | "G" | "T" | "P" | "E" | "Z" | "Y";
+type RoughSizeString = `${number}${SizeUnit}`;
+
 function fileParser(base: string, dom: HTMLHtmlElement) {
     const files: NginxFile[] = [];
     const path = base.replace(/\/$/, "");
@@ -21,18 +24,45 @@ function fileParser(base: string, dom: HTMLHtmlElement) {
         }
         element = element.nextSibling;
         if (element instanceof Text) {
-            const _data = element.data.match(/^\s*(.*?)\s+(?:\d+|-)\s*$/)?.[1];
-            date = new Date(_data ?? "");
+            const _date = element.data.match(/^\s*(.*?)\s+(?:\d+[YZEPTGMK]?|-)\s*$/)?.[1];
+            date = new Date(_date ?? "");
             date = isNaN(date?.getTime()) ? null : date;
 
-            const _size = parseInt(element.data.match(/\s+(\d+|-)\s*$/)?.[1] ?? "-");
-            size = isNaN(_size) ? null : _size;
+            const _size = element.data.match(/\s+(\d+[YZEPTGMK]?|-)\s*$/)?.[1] ?? "-";
+            if (_size.match(/^\d+$/)) {
+                // 该项为文件, 大小精确
+                size = parseInt(_size);
+            } else if (_size.match(/^\d+[YZEPTGMK]$/)) {
+                // 该项为文件, 大小模糊
+                // Nginx 返回的模糊大小只包含 整数+单位
+                size = convertToBytes(_size as RoughSizeString);
+            } else if (_size === "-") {
+                // 该项为文件夹
+                size = null;
+            }
         }
         files.push({name, href, date, size});
         element = element?.nextSibling;
     }
 
     return files;
+}
+
+function convertToBytes(sizeStr: RoughSizeString): number {
+    const units: { [key: string]: number } = {
+        "K": 1024,
+        "M": 1024 ** 2,
+        "G": 1024 ** 3,
+        "T": 1024 ** 4,
+        "P": 1024 ** 5,
+        "E": 1024 ** 6,
+        "Z": 1024 ** 7,
+        "Y": 1024 ** 8,
+    };
+    const num = parseInt(sizeStr.slice(0, -1));
+    const unit = sizeStr.slice(-1).toUpperCase();
+    // 由于前面正则的限制, 这里不会出现 NaN
+    return num * units[unit];
 }
 
 export default fileParser;
