@@ -5,17 +5,12 @@ export interface NginxFile {
     size: number | null;
 }
 
-export interface NginxPageMetadata {
-    path: string;
-    files: NginxFile[];
-}
-
 type SizeUnit = "K" | "M" | "G" | "T" | "P" | "E" | "Z" | "Y";
 type RoughSizeString = `${number}${SizeUnit}`;
 
-function fileParser(dom: HTMLHtmlElement) {
+function fileParser(base: string, dom: HTMLHtmlElement) {
     const files: NginxFile[] = [];
-    const path = new URL(location.href).pathname.replace(/\/$/, "");
+    const path = base.replace(/\/$/, "");
 
     let element: ChildNode | null | undefined = dom.querySelector("pre > a:nth-child(2)");
     while (element) {
@@ -50,9 +45,7 @@ function fileParser(dom: HTMLHtmlElement) {
         element = element?.nextSibling;
     }
 
-    console.log({path, files} as NginxPageMetadata);
-
-    return {path, files} as NginxPageMetadata;
+    return files;
 }
 
 function convertToBytes(sizeStr: RoughSizeString): number {

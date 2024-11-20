@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+SITE_CONFIG="    window.siteConfig = window.siteConfig || {};"
+
 if [ -n "$SITECONFIG_NAME" ]; then
   SITE_CONFIG=$(cat <<- EOF
 ${SITE_CONFIG}

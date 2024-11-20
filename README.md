@@ -2,6 +2,8 @@
 
 基于 React & MUI 的 Nginx AutoIndex 美化，完美支持GitHub Markdown语法，用了都说好！
 
+大多数 Nginx AutoIndex 的美化都是基于 nginx 的 xslt 模块，然而，这个模块在大多数主流的发行版中都是默认关闭的（包括 Docker 镜像），自行编译又太麻烦。而本项目无需 xslt 模块，只需简单的修改 Nginx 配置文件即可。
+
 [[demo](https://nginx-autoindex-demo.skyone.host)] 小水管，第一次打开速度慢...
 
 `React` + `MUI` + `Remark` + `KaTeX`
@@ -17,7 +19,7 @@
 5. [x] 暗色模式 & 跟随系统模式
 6. [x] README.md & gfm
 7. [x] 数学公式、代码高亮
-8. [x] 切换目录无需重载网页
+8. [x] 使用 `react-router` 实现不刷新页面的路由
 9. [x] README 支持折叠
 
 计划：
@@ -25,10 +27,6 @@
 1. [ ] 欢迎 issue
 
 有人用才有动力更新呐~
-
-~~作者很懒，代码基本怎么直接怎么写，欢迎修改~~
-
-~~`FileTable.tsx` 写的很烂，别问，问就是懒，不想动脑子~~
 
 ## 部署教程
 
@@ -104,6 +102,10 @@ docker-compose up -d
 - `SITECONFIG_FOOTER`
 - `SITECONFIG_README`
 - `SITECONFIG_BEFORE`
+
+## 构建与开发
+
+参考 [BUILD.md](/BUILD.md)
 
 ## 更多截图
 

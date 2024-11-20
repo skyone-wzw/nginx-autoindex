@@ -10,7 +10,7 @@ module.exports = merge(common, {
     output: {
         filename: "nginx-autoindex/[name].js",
         path: path.resolve(PROJECT_PATH, "./build"),
-        assetModuleFilename: "nginx-autoindex/fonts/[name][ext]"
+        assetModuleFilename: "nginx-autoindex/fonts/[name][ext]",
     },
     module: {
         rules: [
@@ -31,6 +31,10 @@ module.exports = merge(common, {
         historyApiFallback: {
             disableDotRule: true,
             index: "/",
-        }
+        },
+        // proxy: [{
+        //     context: ["**", "!/nginx-autoindex/**", "!/autoindex.html"],
+        //     target: "http://192.168.172.162", // 调试同 nginx 的链接
+        // }],
     },
 });

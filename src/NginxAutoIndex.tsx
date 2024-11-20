@@ -1,7 +1,9 @@
 import CloudCircleIcon from "@mui/icons-material/CloudCircle";
 import {AppBar, Button, Container, IconButton, Paper, Skeleton, Toolbar, Typography} from "@mui/material";
-import {lazy, Suspense, useEffect, useState} from "react";
-import fileParser, {NginxPageMetadata} from "./file-parser";
+import {lazy, MouseEventHandler, Suspense, useEffect, useState} from "react";
+import {flushSync} from "react-dom";
+import {useLocation, useNavigate} from "react-router";
+import fileParser, {NginxFile} from "./file-parser";
 import FileTable from "./FileTable";
 import {useColorMode, useColorModeIcon} from "./theme";
 
@@ -9,8 +11,9 @@ const Readme = lazy(() => import("./Readme"));
 
 async function fetchNewPage(url: string) {
     try {
+        const head = await fetch(url, {method: "HEAD"});
+        if (!head.ok || !head.headers.get("Content-Type")?.match(/text\/html/i)) return null;
         const res = await fetch(url);
-        if (!res.ok) return null;
         const html = await res.text();
         const parser = new DOMParser();
         return parser.parseFromString(html, "text/html");
@@ -19,35 +22,60 @@ async function fetchNewPage(url: string) {
     }
 }
 
-interface NginxAutoIndexProps {
-    metadata: NginxPageMetadata;
-}
-
-function NginxAutoIndex({metadata}: NginxAutoIndexProps) {
-    const [path, setPath] = useState(metadata.path);
-    const [files, setFiles] = useState(metadata.files);
+function NginxAutoIndex() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [files, setFiles] = useState<NginxFile[]>([]);
     const {toggleColorMode} = useColorMode();
     const colorModeIcon = useColorModeIcon();
 
     const readme = files.find(file => /\/readme\.md$/i.test(file.href || ""));
 
     useEffect(() => {
-        const prefix = path === "" ? "" : `${path} - `;
-        document.title = `${prefix}${window.siteConfig!.title!}`;
-    }, [path]);
+        (async () => {
+            const newPage = await fetchNewPage(location.pathname);
+            if (!newPage) {
+                // 如果获取失败，新建页面以播放/下载
+                const a = document.createElement("a");
+                a.href = location.pathname;
+                a.target = "_blank";
+                a.click();
+                navigate(-1);
+                return;
+            }
+            const newFiles = fileParser(location.pathname, newPage.documentElement as HTMLHtmlElement);
+            setFiles(newFiles);
+            const prefix = location.pathname === "" ? "" : `${location.pathname} - `;
+            document.title = `${prefix}${window.siteConfig!.title}`;
+        })();
+    }, [location.pathname]);
 
-    const handleNewPage = async (url: string) => {
-        const newPage = await fetchNewPage(url);
-        if (!newPage) {
-            // 如果获取失败，直接跳转
-            window.location.href = url;
+    const handleToggleColorMode: MouseEventHandler = async (e) => {
+        if (!document.startViewTransition) {
+            toggleColorMode();
             return;
         }
-        history.pushState(null, "", url);
-        window.scroll({top: 0, behavior: "smooth"});
-        const newMetadata = fileParser(newPage.documentElement as HTMLHtmlElement);
-        setPath(newMetadata.path);
-        setFiles(newMetadata.files);
+        const x = e.clientX;
+        const y = e.clientY;
+        const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+        const vt = document.startViewTransition(() => {
+            flushSync(() => {
+                toggleColorMode();
+            });
+        });
+        await vt.ready;
+        const frameConfig = {
+            clipPath: [
+                `circle(0 at ${x}px ${y}px)`,
+                `circle(${radius}px at ${x}px ${y}px)`,
+            ],
+        };
+        const timingConfig = {
+            duration: 400,
+            pseudoElement: "::view-transition-new(root)",
+        };
+        document.documentElement.animate(frameConfig, timingConfig);
     };
 
     const readmeElement = window.siteConfig!.readme! && readme && (
@@ -63,13 +91,12 @@ function NginxAutoIndex({metadata}: NginxAutoIndexProps) {
                     <CloudCircleIcon sx={{mr: 2}}/>
                     <div style={{flexGrow: 1}}>
                         <Button color="inherit" href="/">
-                            <Typography component="h1" sx={{flexGrow: 1, userSelect: "none"}}
-                                        onClick={() => handleNewPage("/")}>
+                            <Typography component="h1" sx={{flexGrow: 1, userSelect: "none"}}>
                                 {window.siteConfig!.name!}
                             </Typography>
                         </Button>
                     </div>
-                    <IconButton color="inherit" sx={{mr: 2}} onClick={toggleColorMode}>
+                    <IconButton color="inherit" sx={{mr: 2}} onClick={handleToggleColorMode}>
                         {colorModeIcon}
                     </IconButton>
                 </Toolbar>
@@ -78,7 +105,7 @@ function NginxAutoIndex({metadata}: NginxAutoIndexProps) {
                 <Toolbar/>
                 {window.siteConfig!.before && readmeElement}
                 <Paper sx={{mb: 3}}>
-                    <FileTable files={files} handleNewPage={handleNewPage}/>
+                    <FileTable files={files}/>
                 </Paper>
                 {!window.siteConfig!.before && readmeElement}
             </Container>
