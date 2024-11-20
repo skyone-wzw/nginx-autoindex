@@ -12,13 +12,15 @@ jobs:
   release:
     name: Release CI
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: install node latest lts
+      - name: install node.js v20
         uses: actions/setup-node@v2
         with:
-          node-version: 'lts'
+          node-version: '20'
       - name: install dependencies
         run: npm install
       - name: build
@@ -29,7 +31,7 @@ jobs:
           tar -zcf ../${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz *
           zip -rq ../${{ github.event.repository.name }}-${{ github.ref_name }}.zip *
       - name: upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         id: upload-artifact-step
         with:
           name: ${{ github.event.repository.name }}-${{ github.ref_name }}
