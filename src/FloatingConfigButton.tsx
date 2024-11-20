@@ -8,14 +8,13 @@ import {
     DialogContent,
     Fab,
     FormControlLabel,
-    Grid,
+    Grid2,
     IconButton,
     InputLabel,
     MenuItem,
     Select,
     Slide,
     Switch,
-    Theme,
     Toolbar,
     Typography,
     useMediaQuery,
@@ -45,7 +44,7 @@ interface FloatingConfigButtonProps {
 
 function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps) {
     const {orderConfig} = settings;
-    const fullScreen = useMediaQuery<Theme>(theme => theme.breakpoints.down("md"));
+    const fullScreen = useMediaQuery(theme => theme.breakpoints.down("md"));
     const [isOpen, setIsOpen] = useState(false);
     const [wideMode, setWideMode] = useState(settings.wideMode);
     const [orderGroupBy, setOrderGroupBy] = useState(orderConfig.groupBy);
@@ -113,16 +112,16 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                     </Select>
                 </DialogContent>
                 <DialogActions>
-                    <Grid container spacing={2} sx={{p: 2}}>
-                        <Grid item xs={6}>
+                    <Grid2 container spacing={2} sx={{p: 2}}>
+                        <Grid2 size={{xs: 6}}>
                             <Button
                                 fullWidth
                                 variant="contained"
                                 onClick={handleSave}>
                                 确定
                             </Button>
-                        </Grid>
-                        <Grid item xs={6}>
+                        </Grid2>
+                        <Grid2 size={{xs: 6}}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -130,8 +129,8 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                                 onClick={() => setIsOpen(false)}>
                                 取消
                             </Button>
-                        </Grid>
-                    </Grid>
+                        </Grid2>
+                    </Grid2>
                 </DialogActions>
             </Dialog>
         </>
