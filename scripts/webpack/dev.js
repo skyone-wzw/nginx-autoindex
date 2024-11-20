@@ -32,9 +32,9 @@ module.exports = merge(common, {
             disableDotRule: true,
             index: "/",
         },
-        proxy: [{
-            context: ["**", "!/nginx-autoindex/**", "!/autoindex.html"],
-            target: "http://192.168.172.162", // 调试同 nginx 的链接
-        }],
+        // proxy: [{
+        //     context: ["**", "!/nginx-autoindex/**", "!/autoindex.html"],
+        //     target: "http://192.168.172.162", // 调试同 nginx 的链接
+        // }],
     },
 });

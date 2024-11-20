@@ -7,7 +7,7 @@ module.exports = {
     stats: "errors-warnings",
     entry: {
         app: path.resolve(PROJECT_PATH, "./src/index.tsx"),
-        bootstrap: path.resolve(PROJECT_PATH, "./src/bootstrap.ts")
+        bootloader: path.resolve(PROJECT_PATH, "./src/bootloader.ts")
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".jsx"],

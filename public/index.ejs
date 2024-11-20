@@ -9,7 +9,7 @@
     // @@DOCKER_CONFIG_END@@
     window.assets = {
         css: <%= JSON.stringify(htmlWebpackPlugin.files.css) %>,
-        js: <%= JSON.stringify(htmlWebpackPlugin.files.js.filter(script => !script.match(/\/bootstrap\.(.*?)\.js$/))) %>
+        js: <%= JSON.stringify(htmlWebpackPlugin.files.js.filter(script => !script.match(/\/bootloader(.*?)\.js$/))) %>
     }
 </script>
-<script defer="defer" src="<%= htmlWebpackPlugin.files.js.find(script => script.match(/\/bootstrap\.(.*?)\.js$/)) %>"></script>
+<script defer="defer" src="<%= htmlWebpackPlugin.files.js.find(script => script.match(/\/bootloader(.*?)\.js$/)) %>"></script>
