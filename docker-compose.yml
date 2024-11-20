@@ -1,15 +1,13 @@
-version: "3"
-
 services:
   autoindex:
-    image: "ghcr.io/skyone-wzw/nginx-autoindex:v1.2.1"
+    image: "ghcr.io/skyone-wzw/nginx-autoindex:v1.3.0"
     restart: unless-stopped
-#    environment:
-#      SITECONFIG_NAME: "File Sharing"
-#      SITECONFIG_TITLE:
-#      SITECONFIG_FOOTER:
-#      SITECONFIG_README: true
-#      SITECONFIG_BEFORE: true
+    #environment:
+    #  SITECONFIG_NAME: "File Sharing"
+    #  SITECONFIG_TITLE:
+    #  SITECONFIG_FOOTER:
+    #  SITECONFIG_README: true
+    #  SITECONFIG_BEFORE: true
     volumes:
       - "./data:/var/www/html"
     ports:
