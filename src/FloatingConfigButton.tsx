@@ -1,7 +1,9 @@
+import {Fingerprint} from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from "@mui/icons-material/Settings";
 import {
     AppBar,
+    Box,
     Button,
     Dialog,
     DialogActions,
@@ -20,8 +22,10 @@ import {
     useMediaQuery,
 } from "@mui/material";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, ReactElement, Ref, useEffect, useState} from "react";
+import {forwardRef, MouseEvent as ReactMouseEvent, ReactElement, Ref, useEffect, useState} from "react";
+import {flushSync} from "react-dom";
 import {OrderConfig} from "./FileTable";
+import {Colors, useColorMode} from "./theme";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -44,6 +48,7 @@ interface FloatingConfigButtonProps {
 
 function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps) {
     const {orderConfig} = settings;
+    const {color, setColor} = useColorMode();
     const fullScreen = useMediaQuery(theme => theme.breakpoints.down("md"));
     const [isOpen, setIsOpen] = useState(false);
     const [wideMode, setWideMode] = useState(settings.wideMode);
@@ -53,6 +58,38 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
         setWideMode(settings.wideMode);
         setOrderGroupBy(orderConfig.groupBy);
     }, [settings.orderConfig]);
+
+    const handleSetColor = (next: keyof typeof Colors) => async (e: ReactMouseEvent<HTMLButtonElement, MouseEvent>) => {
+        if (next === color) {
+            return;
+        }
+        if (!("startViewTransition" in document)) {
+            setColor(next);
+            return;
+        }
+        const x = e.clientX;
+        const y = e.clientY;
+        const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+        const vt = document.startViewTransition(() => {
+            flushSync(() => {
+                setColor(next);
+            });
+        });
+        await vt.ready;
+        const duration = 200;
+        const frameConfig = {
+            clipPath: [
+                `circle(0 at ${x}px ${y}px)`,
+                `circle(${radius}px at ${x}px ${y}px)`,
+            ],
+        };
+        const timingConfig = {
+            duration: duration,
+            pseudoElement: "::view-transition-new(root)",
+        };
+        document.documentElement.animate(frameConfig, timingConfig);
+    };
 
     const handleSave = () => {
         const newOrderConfig = {...orderConfig, groupBy: orderGroupBy};
@@ -76,7 +113,7 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                 scroll="paper"
                 fullScreen={fullScreen}
                 slots={{
-                    transition: Transition
+                    transition: Transition,
                 }}>
                 <AppBar sx={{position: "relative"}}>
                     <Toolbar>
@@ -112,6 +149,22 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                         <MenuItem value="type">按文件夹和文件分组</MenuItem>
                         <MenuItem value="ext">按拓展名分组</MenuItem>
                     </Select>
+                    <Typography component="p" variant="subtitle1" gutterBottom sx={{mt: 2}}>主题颜色</Typography>
+                    <Box sx={{display: "flex", gap: 1}}>
+                        {Object.keys(Colors).map((key) => (
+                            <IconButton key={key} size="large"
+                                        sx={{
+                                            backgroundColor: Colors[key as keyof typeof Colors].primary,
+                                            color: Colors[key as keyof typeof Colors].text,
+                                            ":hover": {
+                                                backgroundColor: Colors[key as keyof typeof Colors].dark,
+                                            },
+                                        }}
+                                        onClick={handleSetColor(key as keyof typeof Colors)}>
+                                <Fingerprint/>
+                            </IconButton>
+                        ))}
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Grid container spacing={2} sx={{p: 2}}>

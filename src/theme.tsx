@@ -7,11 +7,40 @@ import {Link as RouterLink, LinkProps as RouterLinkProps} from "react-router-dom
 
 export const LinkBehavior = forwardRef<
     HTMLAnchorElement,
-    Omit<RouterLinkProps, 'to'> & { href: RouterLinkProps['to'] }
+    Omit<RouterLinkProps, "to"> & { href: RouterLinkProps["to"] }
 >((props, ref) => {
-    const { href, ...other } = props;
+    const {href, ...other} = props;
     return <RouterLink ref={ref} to={href} {...other} />;
 });
+
+export const Colors = {
+    Purple: {
+        primary: "#673ab7",
+        secondary: "#ec4899",
+        text: "#ffffff",
+        dark: "#4917a3",
+    },
+    Blue: {
+        primary: "#0088cc",
+        secondary: "#66ccff",
+        text: "#ffffff",
+        dark: "#005f8f",
+    },
+    Green: {
+        primary: "#2d8454",
+        secondary: "#03dac6",
+        text: "#ffffff",
+        dark: "#00562b",
+    },
+    Pink: {
+        primary: "#f43098",
+        secondary: "#ab44ff",
+        text: "#ffffff",
+        dark: "#a1005c",
+    }
+};
+export type Color = keyof typeof Colors;
+const ColorNames = Object.keys(Colors) as Color[];
 
 export type ColorMode = "light" | "dark" | "system";
 export type SystemColorMode = "light" | "dark"
@@ -19,6 +48,8 @@ export type SystemColorMode = "light" | "dark"
 const local = localStorage.getItem("theme.palette.mode") || "system";
 const defaultMode = local === "light" || local === "dark" ? local : "system";
 const defaultSystem = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+const localColor = (localStorage.getItem("theme.palette.color") || "Purple") as Color;
+const defaultLocalColor = ColorNames.includes(localColor) ? localColor : "Purple";
 
 type ColorModeContextType = {
     currentColorMode: SystemColorMode;
@@ -26,9 +57,11 @@ type ColorModeContextType = {
     toggleColorMode: () => void;
     colorMode: ColorMode;
     setColorMode: (mode: ColorMode) => void;
+    color: Color;
+    setColor: (color: Color) => void;
 }
 
-export const ColorModeContext = createContext<ColorModeContextType>(null!);
+export const ColorModeContext = createContext<ColorModeContextType>(undefined!);
 
 export function useColorMode() {
     return useContext(ColorModeContext);
@@ -39,6 +72,7 @@ type ThemeProviderProps = PropsWithChildren;
 export function ThemeProvider({children}: ThemeProviderProps) {
     const [colorMode, _setColorMode] = useState<ColorMode>(defaultMode);
     const [systemColorMode, setSystemColorMode] = useState<SystemColorMode>(defaultSystem);
+    const [color, _setColor] = useState<Color>(defaultLocalColor);
     useEffect(() => {
         const listener = (e: MediaQueryListEvent) => {
             setSystemColorMode(e.matches ? "dark" : "light");
@@ -63,6 +97,10 @@ export function ThemeProvider({children}: ThemeProviderProps) {
             setColorMode("light");
         }
     };
+    const setColor = (mode: Color) => {
+        _setColor(mode);
+        localStorage.setItem("theme.palette.color", mode);
+    }
     const currentColorMode = colorMode === "system" ? systemColorMode : colorMode;
     useEffect(() => {
         if (document.documentElement.style.colorScheme !== currentColorMode) {
@@ -84,10 +122,10 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         palette: {
             mode: currentColorMode,
             primary: {
-                main: "#673ab7",
+                main: Colors[color].primary,
             },
             secondary: {
-                main: "#ec4899",
+                main: Colors[color].secondary,
             },
         },
         components: {
@@ -104,8 +142,18 @@ export function ThemeProvider({children}: ThemeProviderProps) {
         },
     });
 
+    const value = {
+        colorMode,
+        currentColorMode,
+        systemColorMode,
+        setColorMode,
+        toggleColorMode,
+        color,
+        setColor,
+    }
+
     return (
-        <ColorModeContext.Provider value={{colorMode, currentColorMode, systemColorMode, setColorMode, toggleColorMode}}>
+        <ColorModeContext.Provider value={value}>
             <MuiThemeProvider theme={theme}>
                 <CssBaseline/>
                 {children}
