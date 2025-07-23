@@ -8,7 +8,7 @@ import {
     DialogContent,
     Fab,
     FormControlLabel,
-    Grid2,
+    Grid,
     IconButton,
     InputLabel,
     MenuItem,
@@ -75,7 +75,9 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                 keepMounted
                 scroll="paper"
                 fullScreen={fullScreen}
-                TransitionComponent={Transition}>
+                slots={{
+                    transition: Transition
+                }}>
                 <AppBar sx={{position: "relative"}}>
                     <Toolbar>
                         <Typography sx={{ml: 1, flex: 1}} variant="h6" component="div">
@@ -112,16 +114,16 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                     </Select>
                 </DialogContent>
                 <DialogActions>
-                    <Grid2 container spacing={2} sx={{p: 2}}>
-                        <Grid2 size={{xs: 6}}>
+                    <Grid container spacing={2} sx={{p: 2}}>
+                        <Grid size={{xs: 6}}>
                             <Button
                                 fullWidth
                                 variant="contained"
                                 onClick={handleSave}>
                                 确定
                             </Button>
-                        </Grid2>
-                        <Grid2 size={{xs: 6}}>
+                        </Grid>
+                        <Grid size={{xs: 6}}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -129,8 +131,8 @@ function FloatingConfigButton({settings, setSettings}: FloatingConfigButtonProps
                                 onClick={() => setIsOpen(false)}>
                                 取消
                             </Button>
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
                 </DialogActions>
             </Dialog>
         </>
