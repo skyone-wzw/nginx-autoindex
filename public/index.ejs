@@ -1,15 +1,21 @@
 <script>
-    window.siteConfig = {
-        name: "文件分享",
-        footer: "Powered by Nginx AutoIndex & Skyone Beautify",
-        readme: true,
-        before: true
-    }
-    // @@DOCKER_CONFIG_START@@
-    // @@DOCKER_CONFIG_END@@
-    window.assets = {
-        css: <%= JSON.stringify(htmlWebpackPlugin.files.css) %>,
-        js: <%= JSON.stringify(htmlWebpackPlugin.files.js.filter(script => !script.match(/\/bootloader(.*?)\.js$/))) %>
+    if (document.title.includes("Index of")) {
+        window.siteConfig = {
+            name: "文件分享",
+            footer: "Powered by Nginx AutoIndex & Skyone Beautify",
+            readme: true,
+            before: true
+        }
+        // @@DOCKER_CONFIG_START@@
+        // @@DOCKER_CONFIG_END@@
+        window.assets = {
+            css: <%= JSON.stringify(htmlWebpackPlugin.files.css) %>,
+            js: <%= JSON.stringify(htmlWebpackPlugin.files.js.filter(script => !script.match(/\/bootloader(.*?)\.js$/))) %>
+        }
+
+        const s = document.createElement("script");
+        s.src = "<%= htmlWebpackPlugin.files.js.find(script => script.match(/\/bootloader(.*?)\.js$/)) %>";
+        s.defer = true;
+        document.head.appendChild(s);
     }
 </script>
-<script defer="defer" src="<%= htmlWebpackPlugin.files.js.find(script => script.match(/\/bootloader(.*?)\.js$/)) %>"></script>
