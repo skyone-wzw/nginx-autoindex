@@ -22,6 +22,7 @@ const defaultSystem = window.matchMedia("(prefers-color-scheme: dark)").matches 
 
 type ColorModeContextType = {
     currentColorMode: SystemColorMode;
+    systemColorMode: SystemColorMode;
     toggleColorMode: () => void;
     colorMode: ColorMode;
     setColorMode: (mode: ColorMode) => void;
@@ -104,7 +105,7 @@ export function ThemeProvider({children}: ThemeProviderProps) {
     });
 
     return (
-        <ColorModeContext.Provider value={{colorMode, currentColorMode, setColorMode, toggleColorMode}}>
+        <ColorModeContext.Provider value={{colorMode, currentColorMode, systemColorMode, setColorMode, toggleColorMode}}>
             <MuiThemeProvider theme={theme}>
                 <CssBaseline/>
                 {children}

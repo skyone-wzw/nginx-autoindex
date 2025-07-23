@@ -1,6 +1,6 @@
 import CloudCircleIcon from "@mui/icons-material/CloudCircle";
 import {AppBar, Button, Container, IconButton, Paper, Skeleton, Toolbar, Typography} from "@mui/material";
-import {lazy, MouseEventHandler, Suspense, useEffect, useState} from "react";
+import {lazy, MouseEventHandler, Suspense, useCallback, useEffect, useState} from "react";
 import {flushSync} from "react-dom";
 import {useLocation, useNavigate} from "react-router";
 import fileParser, {NginxFile} from "./file-parser";
@@ -30,7 +30,7 @@ function NginxAutoIndex() {
     const location = useLocation();
     const navigate = useNavigate();
     const [files, setFiles] = useState<NginxFile[]>([]);
-    const {toggleColorMode} = useColorMode();
+    const {colorMode, systemColorMode, toggleColorMode} = useColorMode();
     const colorModeIcon = useColorModeIcon();
 
     const readme = files.find(file => /\/readme\.md$/i.test(file.href || ""));
@@ -54,8 +54,19 @@ function NginxAutoIndex() {
         })();
     }, [location.pathname]);
 
-    const handleToggleColorMode: MouseEventHandler = async (e) => {
-        if (!document.startViewTransition) {
+    const handleToggleColorMode = useCallback<MouseEventHandler>(async (e) => {
+        if (!("startViewTransition" in document)) {
+            toggleColorMode();
+            return;
+        }
+        // 跳过颜色不变
+        if (colorMode === "dark" && colorMode === systemColorMode) {
+            // dark -> system (dark)
+            toggleColorMode();
+            return;
+        }
+        if (colorMode === "system" && systemColorMode === "light") {
+            // system(light) -> light
             toggleColorMode();
             return;
         }
@@ -69,18 +80,34 @@ function NginxAutoIndex() {
             });
         });
         await vt.ready;
-        const frameConfig = {
-            clipPath: [
-                `circle(0 at ${x}px ${y}px)`,
-                `circle(${radius}px at ${x}px ${y}px)`,
-            ],
-        };
-        const timingConfig = {
-            duration: 400,
-            pseudoElement: "::view-transition-new(root)",
-        };
-        document.documentElement.animate(frameConfig, timingConfig);
-    };
+        const duration = 200;
+        if (colorMode === "light") {
+            const frameConfig = {
+                clipPath: [
+                    `circle(0 at ${x}px ${y}px)`,
+                    `circle(${radius}px at ${x}px ${y}px)`,
+                ],
+            };
+            const timingConfig = {
+                duration: duration,
+                pseudoElement: "::view-transition-new(root)",
+            };
+            document.documentElement.animate(frameConfig, timingConfig);
+        } else {
+            const frameConfig = {
+                clipPath: [
+                    `circle(${radius}px at ${x}px ${y}px)`,
+                    `circle(0 at ${x}px ${y}px)`,
+                ],
+                zIndex: [10, 10],
+            };
+            const timingConfig = {
+                duration: duration,
+                pseudoElement: "::view-transition-old(root)",
+            };
+            document.documentElement.animate(frameConfig, timingConfig);
+        }
+    }, [colorMode, toggleColorMode]);
 
     const readmeElement = window.siteConfig!.readme! && readme && (
         <Suspense fallback={<Skeleton variant="rounded" height={320} sx={{mb: 3}} animation="wave"/>}>
