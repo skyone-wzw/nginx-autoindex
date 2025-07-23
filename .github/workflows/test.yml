@@ -14,3 +14,10 @@ jobs:
       - name: Build the Docker image for test
         run: |
           docker build . --tag autoindex-test:latest
+          docker save autoindex-test:latest | zstd -3 > nginx-autoindex-test.tar.zst
+
+      - name: Upload docker image as
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-autoindex-test
+          path: nginx-autoindex-test.tar.zst
