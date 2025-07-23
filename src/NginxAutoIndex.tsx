@@ -15,8 +15,12 @@ async function fetchNewPage(url: string) {
         if (!head.ok || !head.headers.get("Content-Type")?.match(/text\/html/i)) return null;
         const res = await fetch(url);
         const html = await res.text();
-        const parser = new DOMParser();
-        return parser.parseFromString(html, "text/html");
+
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        if (!doc.title.includes("Index of")) {
+            return null;
+        }
+        return doc
     } catch (e) {
         return null;
     }

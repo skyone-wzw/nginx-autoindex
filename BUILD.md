@@ -89,7 +89,7 @@ server {
         js: ["/nginx-autoindex/app.js"]
     }
 </script>
-<script defer="defer" src="/nginx-autoindex/bootstrap.js"></script>
+<script defer="defer" src="/nginx-autoindex/bootloader.js"></script>
 ```
 
 运行容器。
@@ -121,7 +121,7 @@ module.exports = merge(common, {
 ```
 
 ```bash
-npm run dev
+npm run start
 ```
 
 脚本会自动打开浏览器，访问 `http://localhost:3000` 即可看到效果。
