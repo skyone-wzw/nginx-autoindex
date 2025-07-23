@@ -1,6 +1,5 @@
 const {merge} = require("webpack-merge");
 const path = require("path");
-const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const common = require("./common");
@@ -14,7 +13,7 @@ module.exports = merge(common, {
     output: {
         filename: "nginx-autoindex/[name].[contenthash:8].js",
         path: path.resolve(PROJECT_PATH, "./build"),
-        assetModuleFilename: "nginx-autoindex/fonts/[hash][ext]"
+        assetModuleFilename: "nginx-autoindex/fonts/[hash][ext]",
     },
     optimization: {
         minimize: true,
@@ -37,7 +36,6 @@ module.exports = merge(common, {
         new MiniCssExtractPlugin({
             filename: "nginx-autoindex/[name].[contenthash:8].css",
         }),
-        new CleanWebpackPlugin(),
         new CopyWebpackPlugin({
             patterns: [
                 {

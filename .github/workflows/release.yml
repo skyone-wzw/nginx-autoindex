@@ -17,10 +17,10 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: install node.js v20
-        uses: actions/setup-node@v2
+      - name: install node.js LTS
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 22
       - name: install dependencies
         run: npm install
       - name: build
@@ -31,7 +31,7 @@ jobs:
           tar -zcf ../${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz *
           zip -rq ../${{ github.event.repository.name }}-${{ github.ref_name }}.zip *
       - name: upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         id: upload-artifact-step
         with:
           name: ${{ github.event.repository.name }}-${{ github.ref_name }}
