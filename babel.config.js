@@ -3,13 +3,19 @@ module.exports = function (api) {
     return {
         plugins: [],
         presets: [
-            "@babel/preset-env",
+            [
+                "@babel/preset-env",
+                {
+                    corejs: 3,
+                    useBuiltIns: "usage",
+                },
+            ],
             [
                 "@babel/preset-react",
                 {
-                    runtime: "automatic"
-                }
-            ]
+                    runtime: "automatic",
+                },
+            ],
         ],
     };
 };

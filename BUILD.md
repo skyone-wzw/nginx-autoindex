@@ -11,7 +11,7 @@
 
 ### 环境要求 {#build-environment-requirements}
 
-* Node.js 16 或更高
+* Node.js 20 或更高
 
 ### 步骤 {#build-steps}
 

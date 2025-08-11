@@ -15,6 +15,7 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "@mui/utils": "^7.3.1",
+    "core-js": "^3.45.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router": "^7.8.0",
@@ -37,17 +38,18 @@
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "@types/node": "^24.2.0",
+    "@types/node": "^24.2.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@types/webpack-env": "^1.18.8",
     "babel-loader": "^10.0.0",
+    "browserlist": "^1.0.1",
     "copy-webpack-plugin": "^13.0.0",
     "cross-env": "^10.0.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
     "html-webpack-plugin": "^5.6.3",
-    "mini-css-extract-plugin": "^2.9.3",
+    "mini-css-extract-plugin": "^2.9.4",
     "rimraf": "^6.0.1",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.14",
@@ -58,5 +60,10 @@
     "webpack-dev-server": "^5.2.2",
     "webpack-merge": "^6.0.1",
     "webpackbar": "^7.0.0"
-  }
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    ">= 0.5%"
+  ]
 }
