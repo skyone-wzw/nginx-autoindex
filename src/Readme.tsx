@@ -1,5 +1,5 @@
 import {Box, Button, Card, CardHeader, CardMedia, Collapse, Paper, Skeleton} from "@mui/material";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import "./markdown.css";
 import "./github.min.css";
 import {useColorMode} from "./theme";
@@ -15,7 +15,6 @@ function Readme({url}: ReadmeProps) {
     const [error, setError] = useState(false);
     const [show, setShow] = useState(true);
     const {currentColorMode} = useColorMode();
-    const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         (async () => {
@@ -54,16 +53,10 @@ function Readme({url}: ReadmeProps) {
                 setError(true);
                 return;
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         })();
     }, [url]);
-
-    useEffect(() => {
-        if (!loading && ref.current && content) {
-            ref.current.innerHTML = content;
-        }
-    }, [content]);
 
     // 未知错误
     if (error) {
@@ -89,7 +82,8 @@ function Readme({url}: ReadmeProps) {
                 {show ? "↑ 收起" : "↓ 展开 README"}
             </Button>
             <Collapse in={show}>
-                <Box sx={{m: 4}} className={`markdown-body markdown-${currentColorMode}`} ref={ref}/>
+                <Box sx={{m: 4}} dangerouslySetInnerHTML={{__html: content}}
+                     className={`markdown-body markdown-${currentColorMode}`}/>
             </Collapse>
         </Paper>
     );

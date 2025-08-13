@@ -40,7 +40,7 @@ npm run build
 
 ### 环境要求 {#development-environment-requirements}
 
-* Node.js 16 或更高，推荐使用最新的 LTS 版本
+* Node.js 20 或更高，推荐使用最新的 LTS 版本
 * 包管理使用 npm
 
 ### 步骤 {#development-steps}
