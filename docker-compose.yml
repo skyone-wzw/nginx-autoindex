@@ -1,6 +1,6 @@
 services:
   autoindex:
-    image: "ghcr.io/skyone-wzw/nginx-autoindex:v1.3.1"
+    image: "ghcr.io/skyone-wzw/nginx-autoindex:v1.4.0"
     restart: unless-stopped
     #environment:
     #  SITECONFIG_NAME: "File Sharing"
