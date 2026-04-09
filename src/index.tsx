@@ -18,15 +18,11 @@ declare global {
         assets?: {
             css: string[],
             js: string[],
-        }
+        };
     }
 }
 
-if (process.env.NODE_ENV === "development") {
-    if (module && module.hot) {
-        module.hot.accept();
-    }
-} else {
+if (process.env.NODE_ENV === "production") {
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
             navigator.serviceWorker.register("/nginx-autoindex/sw.js")

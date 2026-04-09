@@ -142,9 +142,11 @@ function NginxAutoIndex() {
             </Container>
             {window.siteConfig?.footer && (
                 <Paper component="footer" sx={{py: 4}}>
-                    <Typography textAlign="center"
-                                variant="body1"
-                                component="p">
+                    <Typography variant="body1"
+                                component="p"
+                                sx={{
+                                    textAlign: "center"
+                                }}>
                         {window.siteConfig?.footer}
                     </Typography>
                 </Paper>

@@ -16,9 +16,6 @@ if (process.env.NODE_ENV === "development") {
         script.src = js;
         document.body.appendChild(script);
     }
-    if (module && module.hot) {
-        module.hot.accept();
-    }
 } else {
     bootstrap();
 }
